@@ -3,222 +3,331 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta name="theme-color" content="#10131b">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f6fb">
 <title>Расписание РКТМ</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root {
-  --bg:#10131b; --card:#191e2a; --card2:#222938;
-  --text:#f4f6fb; --muted:#9ca8bb; --accent:#83aaff;
-  --border:#30384a;
+  color-scheme: light;
+  --bg: #f4f6fb;
+  --card: #ffffff;
+  --text: #172033;
+  --muted: #748096;
+  --accent: #315efb;
+  --line: #e6eaf2;
 }
-* {box-sizing:border-box}
+* { box-sizing: border-box; }
 body {
-  margin:0; padding:0 16px 35px;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  background:var(--bg); color:var(--text);
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
-header {padding:25px 0 22px}
-.brand {font-size:11px;letter-spacing:2px;color:var(--accent);font-weight:800}
-h1 {font-size:32px;letter-spacing:-1px;margin:5px 0}
-.subtitle {font-size:14px;color:var(--muted)}
-.panel {background:var(--card);border:1px solid var(--border);border-radius:20px;padding:16px}
-label {display:block;font-size:12px;color:var(--muted);margin:0 0 8px}
-select,input {
-  width:100%;padding:14px;margin-bottom:14px;
-  color:var(--text);background:var(--card2);
-  border:1px solid var(--border);border-radius:12px;
-  font-size:15px;outline:none;
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+.app { max-width: 900px; margin: auto; padding: 20px 16px 40px; }
+.top {
+  display: flex; align-items: center; gap: 13px;
+  margin: 8px 0 25px;
 }
-button {
-  border:0;border-radius:12px;padding:14px;
-  font-weight:750;font-size:14px;cursor:pointer;
+.logo {
+  width: 48px; height: 48px; border-radius: 16px;
+  background: var(--accent); color: white;
+  display: grid; place-items: center;
+  font-weight: 800; font-size: 16px;
+  box-shadow: 0 8px 20px #315efb35;
 }
-.primary {background:var(--accent);color:#101725;width:100%}
-.status {font-size:13px;color:var(--muted);margin:15px 2px}
-.card {
-  background:var(--card);border:1px solid var(--border);
-  border-radius:16px;padding:15px;margin-bottom:10px;
-  overflow-wrap:anywhere;
+h1 { font-size: 23px; margin: 0 0 4px; letter-spacing: -.5px; }
+.subtitle { color: var(--muted); font-size: 13px; }
+.hero {
+  padding: 24px; border-radius: 24px;
+  background: linear-gradient(135deg, #244eea, #6584ff);
+  color: white; margin-bottom: 18px;
 }
-.card-title {font-size:15px;font-weight:750;margin-bottom:8px;line-height:1.4}
-.card-info {font-size:13px;color:var(--muted);line-height:1.7;white-space:pre-wrap}
-table {border-collapse:collapse;width:100%;font-size:13px}
-th,td {padding:11px 9px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;white-space:pre-wrap}
-th {color:var(--accent)}
-.table-wrap {overflow-x:auto;background:var(--card);border-radius:16px;border:1px solid var(--border)}
-.empty {text-align:center;color:var(--muted);padding:28px 12px;line-height:1.6}
-.footer {text-align:center;font-size:11px;color:#707b8f;margin-top:24px}
+.hero small { opacity: .8; font-weight: 600; }
+.hero h2 { margin: 9px 0; font-size: 27px; }
+.hero p { margin: 0; opacity: .85; line-height: 1.5; font-size: 14px; }
+.panel {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 20px; padding: 18px; margin-bottom: 15px;
+  box-shadow: 0 4px 18px #1a2a4b06;
+}
+.label {
+  display: block; color: var(--muted); font-size: 12px;
+  font-weight: 700; margin-bottom: 9px;
+}
+select, input {
+  width: 100%; border: 1px solid var(--line);
+  border-radius: 13px; padding: 14px;
+  background: #fff; color: var(--text); outline: none;
+}
+select:focus, input:focus { border-color: var(--accent); }
+.search { margin-top: 16px; }
+.section-title {
+  font-size: 17px; font-weight: 750; margin: 22px 2px 12px;
+}
+.group-grid {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.group {
+  text-align: left; min-height: 78px;
+  border: 1px solid var(--line); border-radius: 16px;
+  background: white; padding: 15px;
+  color: var(--text); transition: .15s;
+}
+.group:hover { border-color: var(--accent); transform: translateY(-1px); }
+.group strong { display: block; font-size: 16px; }
+.group span { display: block; color: var(--muted); font-size: 12px; margin-top: 7px; }
+.btn {
+  border: 0; border-radius: 12px; padding: 12px 16px;
+  background: var(--accent); color: white; font-weight: 650;
+}
+.btn.secondary { background: #edf1ff; color: var(--accent); }
+.toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+.toolbar h2 { margin: 0; font-size: 21px; }
+.schedule-shell {
+  background: white; border: 1px solid var(--line);
+  border-radius: 18px; overflow: hidden;
+}
+.schedule-frame {
+  width: 100%; height: 70vh; min-height: 480px;
+  border: 0; display: block; background: white;
+}
+.status {
+  padding: 25px 12px; text-align: center;
+  color: var(--muted); font-size: 14px;
+}
+.error { color: #c43232; }
+.hidden { display: none !important; }
+.footer { color: var(--muted); font-size: 12px; text-align: center; padding: 18px 0; }
+@media (max-width: 620px) {
+  .app { padding: 15px 12px 28px; }
+  .hero { padding: 21px; border-radius: 20px; }
+  .hero h2 { font-size: 24px; }
+  .panel { padding: 15px; }
+  .group-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .schedule-frame { height: 72vh; min-height: 420px; }
+}
 </style>
 </head>
 <body>
-<header>
-  <div class="brand">РКТМ · КОЛЛЕДЖ</div>
-  <h1>Расписание</h1>
-  <div class="subtitle">Занятия — быстро и удобно</div>
-</header>
+<div class="app">
+  <header class="top">
+    <div class="logo">РКТМ</div>
+    <div>
+      <h1>Расписание занятий</h1>
+      <div class="subtitle">Ростовский колледж технологий машиностроения</div>
+    </div>
+  </header>
 
-<section class="panel">
-  <label for="source">Выберите расписание</label>
-  <select id="source">
-    <option value="raspisan">Основное расписание</option>
-    <option value="Praspisan">Расписание преподавателей</option>
-    <option value="Araspisan">Расписание аудиторий</option>
-  </select>
+  <section id="home">
+    <div class="hero">
+      <small>РАСПИСАНИЕ КОЛЛЕДЖА</small>
+      <h2>Твоя пара. Твоё время.</h2>
+      <p>Выбери нужный раздел и найди свою группу.</p>
+    </div>
 
-  <label for="search">Поиск по расписанию</label>
-  <input id="search" type="search" placeholder="Группа, предмет, преподаватель…">
+    <div class="panel">
+      <label class="label" for="source">Раздел расписания</label>
+      <select id="source">
+        <option value="raspisan">Расписание студентов</option>
+        <option value="Praspisan">Расписание преподавателей</option>
+        <option value="Araspisan">Расписание аудиторий</option>
+      </select>
+      <div class="search">
+        <label class="label" for="search">Поиск группы</label>
+        <input id="search" type="search" placeholder="Например, АТ-07">
+      </div>
+    </div>
 
-  <button class="primary" id="reload">Обновить расписание ↻</button>
-</section>
+    <div class="section-title" id="groupsTitle">Выбери группу</div>
+    <div id="groups" class="group-grid"></div>
+    <div id="status" class="status">Загружаем список групп…</div>
+  </section>
 
-<div id="status" class="status">Загрузка расписания…</div>
-<main id="results"></main>
-<div class="footer">Официальные данные сайта РКТМ</div>
+  <section id="scheduleView" class="hidden">
+    <div class="toolbar">
+      <button id="back" class="btn secondary">← Назад</button>
+      <div>
+        <h2 id="groupTitle">Расписание</h2>
+        <div class="subtitle" id="groupSubtitle">РКТМ</div>
+      </div>
+    </div>
+    <div class="schedule-shell">
+      <div id="scheduleStatus" class="status">Загружаем расписание…</div>
+      <iframe id="scheduleFrame" class="schedule-frame hidden" title="Расписание группы"></iframe>
+    </div>
+  </section>
+
+  <div class="footer">Официальный источник: rktm.info</div>
+</div>
 
 <script>
-const tg = window.Telegram?.WebApp;
-tg?.ready();
-tg?.expand();
+const sourceSelect = document.getElementById("source");
+const searchInput = document.getElementById("search");
+const groupsBox = document.getElementById("groups");
+const statusBox = document.getElementById("status");
+const groupsTitle = document.getElementById("groupsTitle");
+const home = document.getElementById("home");
+const scheduleView = document.getElementById("scheduleView");
+const scheduleFrame = document.getElementById("scheduleFrame");
+const scheduleStatus = document.getElementById("scheduleStatus");
 
-const API = window.location.origin;
-const source = document.getElementById('source');
-const search = document.getElementById('search');
-const results = document.getElementById('results');
-const status = document.getElementById('status');
+let allGroups = [];
+let requestNumber = 0;
 
-let rows = [];
-
-function setStatus(text) {
-  status.textContent = text;
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;",
+    '"': "&quot;", "'": "&#39;"
+  })[char]);
 }
 
-function parseHTML(html) {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
+async function loadGroups() {
+  const currentRequest = ++requestNumber;
+  const source = sourceSelect.value;
 
-  const tables = [...doc.querySelectorAll('table')];
-  if (tables.length) {
-    return tables.flatMap(table =>
-      [...table.querySelectorAll('tr')].map(tr =>
-        [...tr.querySelectorAll('th,td')].map(td =>
-          (td.innerText || td.textContent || '')
-            .replace(/\s+/g, ' ').trim()
-        ).filter(Boolean)
-      ).filter(row => row.length)
-    );
+  groupsBox.innerHTML = "";
+  statusBox.classList.remove("hidden", "error");
+  statusBox.textContent = "Загружаем список групп…";
+  groupsTitle.textContent = "Выбери группу";
+
+  try {
+    const response = await fetch(`/api/groups/${encodeURIComponent(source)}`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Не удалось получить список групп");
+    }
+    if (currentRequest !== requestNumber) return;
+
+    allGroups = data.groups || [];
+    renderGroups();
+
+    if (!allGroups.length) {
+      statusBox.classList.remove("hidden");
+      statusBox.textContent = "Группы не найдены в источнике расписания.";
+    } else {
+      statusBox.classList.add("hidden");
+    }
+  } catch (error) {
+    if (currentRequest !== requestNumber) return;
+    statusBox.classList.remove("hidden");
+    statusBox.classList.add("error");
+    statusBox.textContent = error.message || "Ошибка загрузки групп.";
   }
-
-  doc.querySelectorAll('script,style,noscript').forEach(el => el.remove());
-  return (doc.body.innerText || doc.body.textContent || '')
-    .split('\n').map(line => line.trim()).filter(Boolean)
-    .map(line => [line]);
 }
 
-function render() {
-  const query = search.value.trim().toLowerCase();
-  const filtered = rows.filter(row =>
-    row.join(' ').toLowerCase().includes(query)
+function renderGroups() {
+  const query = searchInput.value.trim().toLowerCase();
+  const filtered = allGroups.filter(group =>
+    group.name.toLowerCase().includes(query)
   );
 
-  results.innerHTML = '';
+  groupsBox.innerHTML = "";
+  filtered.forEach(group => {
+    const button = document.createElement("button");
+    button.className = "group";
+    button.innerHTML =
+      `<strong>${escapeHtml(group.name)}</strong>` +
+      `<span>Открыть расписание →</span>`;
+    button.addEventListener("click", () => openGroup(group));
+    groupsBox.appendChild(button);
+  });
 
-  if (!filtered.length) {
-    results.innerHTML =
-      '<div class="empty">Расписание не найдено.<br>Попробуйте изменить поисковый запрос.</div>';
-    return;
-  }
+  groupsTitle.textContent = query
+    ? `Результаты поиска: ${filtered.length}`
+    : `Группы (${filtered.length})`;
 
-  const isTable = filtered.some(row => row.length > 2);
-
-  if (isTable) {
-    const wrap = document.createElement('div');
-    wrap.className = 'table-wrap';
-    const table = document.createElement('table');
-
-    filtered.slice(0, 500).forEach((row, index) => {
-      const tr = document.createElement('tr');
-
-      row.forEach(value => {
-        const cell = document.createElement(index === 0 ? 'th' : 'td');
-        cell.textContent = value;
-        tr.appendChild(cell);
-      });
-
-      table.appendChild(tr);
-    });
-
-    wrap.appendChild(table);
-    results.appendChild(wrap);
+  if (filtered.length) {
+    statusBox.classList.add("hidden");
   } else {
-    filtered.slice(0, 500).forEach((row, index) => {
-      const card = document.createElement('article');
-      card.className = 'card';
-
-      const title = document.createElement('div');
-      title.className = 'card-title';
-      title.textContent = row[0] || `Занятие ${index + 1}`;
-      card.appendChild(title);
-
-      if (row.length > 1) {
-        const info = document.createElement('div');
-        info.className = 'card-info';
-        info.textContent = row.slice(1).join('\n');
-        card.appendChild(info);
-      }
-
-      results.appendChild(card);
-    });
+    statusBox.classList.remove("hidden");
+    statusBox.classList.remove("error");
+    statusBox.textContent = query
+      ? "По этому запросу ничего не найдено."
+      : "В этом разделе нет доступных групп.";
   }
-
-  setStatus(`Найдено записей: ${filtered.length}`);
 }
 
-async function loadSchedule() {
-  results.innerHTML = '';
-  setStatus('Загружаем расписание…');
+async function openGroup(group) {
+  const source = sourceSelect.value;
+  home.classList.add("hidden");
+  scheduleView.classList.remove("hidden");
+  document.getElementById("groupTitle").textContent = group.name;
+  document.getElementById("groupSubtitle").textContent =
+    source === "raspisan" ? "Расписание студентов" :
+    source === "Praspisan" ? "Расписание преподавателей" :
+    "Расписание аудиторий";
+
+  scheduleFrame.classList.add("hidden");
+  scheduleStatus.classList.remove("hidden", "error");
+  scheduleStatus.textContent = "Загружаем расписание…";
+  scheduleFrame.srcdoc = "";
 
   try {
     const response = await fetch(
-      `${API}/api/schedule/${encodeURIComponent(source.value)}`,
-      {cache:'no-store'}
+      `/api/group/${encodeURIComponent(source)}/${encodeURIComponent(group.file)}`
     );
+    const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(`Ошибка сервера: ${response.status}`);
+      throw new Error(data.detail || "Не удалось загрузить расписание");
     }
 
-    const data = await response.json();
-    let html;
+    const base = escapeHtml(data.base_url);
+    const extraStyles = `
+      <style>
+        body { font-family: Arial, sans-serif; color: #172033;
+               margin: 16px; background: #fff; }
+        table { border-collapse: collapse; max-width: 100%; width: 100%;
+                font-size: 14px; }
+        td, th { border: 1px solid #dfe4ee; padding: 9px;
+                 vertical-align: top; }
+        th { background: #edf1ff; }
+        tr:nth-child(even) { background: #f8f9fc; }
+        img { max-width: 100%; height: auto; }
+        p { line-height: 1.5; }
+        a { color: #315efb; }
+        @media(max-width:600px) {
+          body { margin: 8px; }
+          table { font-size: 12px; }
+          td, th { padding: 6px; }
+        }
+      </style>`;
 
-    if (typeof data === 'string') html = data;
-    else if (typeof data.html === 'string') html = data.html;
-    else if (typeof data.content === 'string') html = data.content;
-    else if (typeof data.data === 'string') html = data.data;
-    else if (Array.isArray(data.rows)) {
-      rows = data.rows.map(row => Array.isArray(row) ? row : [String(row)]);
-      render();
-      return;
+    let html = data.html || "";
+    if (/<head[^>]*>/i.test(html)) {
+      html = html.replace(/<head([^>]*)>/i,
+        `<head$1><base href="${base}">${extraStyles}`);
     } else {
-      throw new Error('Неизвестный формат ответа API');
+      html = `<head><meta charset="utf-8"><base href="${base}">${extraStyles}</head>${html}`;
     }
 
-    rows = parseHTML(html);
-    render();
-
+    scheduleFrame.srcdoc = html;
+    scheduleStatus.classList.add("hidden");
+    scheduleFrame.classList.remove("hidden");
   } catch (error) {
-    console.error(error);
-    setStatus('Не удалось загрузить расписание.');
-    results.innerHTML =
-      '<div class="empty">Ошибка загрузки данных.<br>Проверьте сервер Render и адрес источника в app.py.</div>';
+    scheduleStatus.classList.remove("hidden");
+    scheduleStatus.classList.add("error");
+    scheduleStatus.textContent = error.message || "Ошибка загрузки расписания.";
   }
 }
 
-document.getElementById('reload').addEventListener('click', loadSchedule);
-source.addEventListener('change', loadSchedule);
-search.addEventListener('input', render);
+document.getElementById("back").addEventListener("click", () => {
+  scheduleFrame.srcdoc = "";
+  scheduleView.classList.add("hidden");
+  home.classList.remove("hidden");
+});
 
-loadSchedule();
+sourceSelect.addEventListener("change", () => {
+  searchInput.value = "";
+  loadGroups();
+});
+searchInput.addEventListener("input", renderGroups);
+
+loadGroups();
 </script>
 </body>
 </html>
