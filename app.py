@@ -1,67 +1,64 @@
 
 import os
+import logging
 from contextlib import asynccontextmanager
-from datetime import datetime
-from urllib.parse import urlparse
+from pathlib import Path
 
 import httpx
-from bs4 import BeautifulSoup
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, RedirectResponse
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, HTMLResponse
 from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
 from aiogram.types import (
     Message,
-    KeyboardButton,
-    ReplyKeyboardMarkup,
-    WebAppInfo,
     Update,
+    ReplyKeyboardMarkup,
+    KeyboardButton,
+    WebAppInfo,
 )
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+BASE_DIR = Path(__file__).resolve().parent
+WEBAPP_DIR = BASE_DIR / "webapp"
+INDEX_FILE = WEBAPP_DIR / "index.html"
 
 BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
 WEBAPP_URL = os.getenv(
-    "WEBAPP_URL", "https://rktm-schedule-bot.onrender.com"
-).strip().rstrip("/")
+    "WEBAPP_URL",
+    os.getenv("RENDER_EXTERNAL_URL", "https://rktm-schedule-bot.onrender.com")
+).rstrip("/")
 WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "").strip()
-REPLACEMENTS_URL = os.getenv("REPLACEMENTS_URL", "").strip()
 
-ALLOWED_HOST = "rktm.info"
-
-SOURCES = {
-    "main": (
-        "Расписание",
-        "https://rktm.info/wp-content/uploads/HTML/raspisan.html",
-    ),
-    "p": (
-        "Расписание П",
-        "https://rktm.info/wp-content/uploads/HTML/Praspisan.html",
-    ),
-    "a": (
-        "Расписание А",
-        "https://rktm.info/wp-content/uploads/HTML/Araspisan.html",
-    ),
+SCHEDULE_URLS = {
+    "raspisan": "https://rktm.info/wp-content/uploads/HTML/raspisan.html",
+    "Praspisan": "https://rktm.info/wp-content/uploads/HTML/Praspisan.html",
+    "Araspisan": "https://rktm.info/wp-content/uploads/HTML/Araspisan.html",
 }
 
-bot = Bot(BOT_TOKEN) if BOT_TOKEN else None
+bot = Bot(token=BOT_TOKEN) if BOT_TOKEN else None
 dp = Dispatcher()
 
 
 @dp.message(CommandStart())
-async def start(message: Message):
+async def start_command(message: Message):
     keyboard = ReplyKeyboardMarkup(
-        keyboard=[[
-            KeyboardButton(
-                text="📅 Открыть расписание",
-                web_app=WebAppInfo(url=WEBAPP_URL),
-            )
-        ]],
+        keyboard=[
+            [
+                KeyboardButton(
+                    text="📅 Открыть расписание",
+                    web_app=WebAppInfo(url=WEBAPP_URL),
+                )
+            ]
+        ],
         resize_keyboard=True,
+        is_persistent=True,
     )
+
     await message.answer(
-        "📚 Расписание РКТМ\n\n"
-        "Нажми кнопку ниже, чтобы открыть мини-приложение "
-        "и посмотреть расписание колледжа.",
+        "Привет! Это расписание РКТМ.\n\n"
+        "Нажми кнопку ниже, чтобы открыть расписание.",
         reply_markup=keyboard,
     )
 
@@ -69,39 +66,96 @@ async def start(message: Message):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     if bot:
-        options = {
-            "url": f"{WEBAPP_URL}/telegram/webhook",
-            "drop_pending_updates": False,
-        }
-        if WEBHOOK_SECRET:
-            options["secret_token"] = WEBHOOK_SECRET
-        await bot.set_webhook(**options)
+        try:
+            await bot.set_webhook(
+                url=f"{WEBAPP_URL}/telegram/webhook",
+                secret_token=WEBHOOK_SECRET or None,
+                allowed_updates=dp.resolve_used_update_types(),
+                drop_pending_updates=False,
+            )
+            logger.info("Telegram webhook configured")
+        except Exception:
+            logger.exception("Failed to configure Telegram webhook")
 
     yield
 
     if bot:
-        await bot.session.close()
+        try:
+            await bot.session.close()
+        except Exception:
+            logger.exception("Failed to close Telegram bot session")
 
 
-app = FastAPI(title="РКТМ — расписание", lifespan=lifespan)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["GET", "POST"],
-    allow_headers=["*"],
+app = FastAPI(
+    title="РКТМ — расписание",
+    lifespan=lifespan,
 )
 
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 async def index():
-    return FileResponse("webapp/index.html")
+    if not INDEX_FILE.is_file():
+        raise HTTPException(
+            status_code=500,
+            detail="Не найден файл webapp/index.html",
+        )
+
+    return FileResponse(INDEX_FILE, media_type="text/html")
 
 
 @app.get("/health")
 async def health():
-    return {"ok": True, "bot_configured": bot is not None}
+    return {
+        "ok": True,
+        "bot_configured": bot is not None,
+        "webapp_exists": INDEX_FILE.is_file(),
+    }
+
+
+@app.get("/api/schedule/{source}")
+async def get_schedule(source: str):
+    url = SCHEDULE_URLS.get(source)
+
+    if not url:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Источник не найден: {source}",
+        )
+
+    try:
+        async with httpx.AsyncClient(
+            timeout=30,
+            follow_redirects=True,
+            headers={
+                "User-Agent": "Mozilla/5.0 (compatible; RKTM-Schedule/1.0)"
+            },
+        ) as client:
+            response = await client.get(url)
+            response.raise_for_status()
+
+        content_type = response.headers.get("content-type", "")
+
+        if "text/html" not in content_type and "<html" not in response.text[:1000].lower():
+            logger.warning(
+                "Schedule source returned unexpected content type: %s",
+                content_type,
+            )
+
+        return {"html": response.text}
+
+    except httpx.HTTPStatusError as exc:
+        logger.exception("Schedule source returned HTTP error")
+        raise HTTPException(
+            status_code=502,
+            detail=f"Сайт расписания вернул HTTP {exc.response.status_code}",
+        ) from exc
+
+    except httpx.HTTPError as exc:
+        logger.exception("Could not fetch schedule")
+        raise HTTPException(
+            status_code=502,
+            detail="Не удалось получить расписание с сайта РКТМ",
+        ) from exc
 
 
 @app.post("/telegram/webhook")
@@ -109,122 +163,34 @@ async def telegram_webhook(request: Request):
     if not bot:
         raise HTTPException(
             status_code=503,
-            detail="Добавьте BOT_TOKEN в Environment на Render",
+            detail="BOT_TOKEN не настроен в Render Environment",
         )
 
     if WEBHOOK_SECRET:
-        supplied = request.headers.get(
+        received_secret = request.headers.get(
             "X-Telegram-Bot-Api-Secret-Token", ""
         )
-        if supplied != WEBHOOK_SECRET:
-            raise HTTPException(status_code=403, detail="Invalid secret")
+        if received_secret != WEBHOOK_SECRET:
+            raise HTTPException(status_code=403, detail="Invalid webhook secret")
 
     try:
         data = await request.json()
         update = Update.model_validate(data, context={"bot": bot})
         await dp.feed_update(bot, update)
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid Telegram update")
+        return {"ok": True}
 
-    return {"ok": True}
-
-
-async def fetch(url: str) -> str:
-    if urlparse(url).hostname != ALLOWED_HOST:
-        raise HTTPException(status_code=400, detail="Недопустимый источник")
-
-    try:
-        async with httpx.AsyncClient(
-            timeout=25, follow_redirects=True
-        ) as client:
-            response = await client.get(
-                url,
-                headers={"User-Agent": "RKTM-Schedule/1.0"},
-            )
-            response.raise_for_status()
-            response.encoding = response.encoding or "utf-8"
-            return response.text
-    except httpx.HTTPError:
+    except Exception as exc:
+        logger.exception("Error processing Telegram update")
         raise HTTPException(
-            status_code=502,
-            detail="Не удалось загрузить расписание с сайта РКТМ",
-        )
+            status_code=500,
+            detail="Ошибка обработки обновления Telegram",
+        ) from exc
 
 
-@app.get("/api/schedule/{source}")
-async def schedule(source: str):
-    if source not in SOURCES:
-        raise HTTPException(status_code=404, detail="Источник не найден")
-
-    label, url = SOURCES[source]
-    html = await fetch(url)
-    soup = BeautifulSoup(html, "html.parser")
-
-    for tag in soup(["script", "style", "noscript", "svg"]):
-        tag.decompose()
-
-    tables = []
-    for table in soup.find_all("table"):
-        rows = []
-        for tr in table.find_all("tr"):
-            cells = [
-                cell.get_text(" ", strip=True)
-                for cell in tr.find_all(["th", "td"])
-            ]
-            if any(cells):
-                rows.append(cells)
-        if rows:
-            tables.append(rows)
-
+@app.get("/api")
+async def api_info():
     return {
-        "label": label,
-        "source": url,
-        "updated_at": datetime.now().isoformat(timespec="minutes"),
-        "tables": tables,
-        "text": soup.get_text("\n", strip=True),
+        "service": "RKTM Schedule",
+        "sources": list(SCHEDULE_URLS.keys()),
+        "schedule_endpoint": "/api/schedule/{source}",
     }
-
-
-@app.get("/api/replacements")
-async def replacements():
-    url = REPLACEMENTS_URL
-
-    if not url:
-        return {
-            "available": False,
-            "message": "Ссылка на PDF замен не настроена.",
-        }
-
-    if (
-        urlparse(url).hostname != ALLOWED_HOST
-        or not url.lower().split("?")[0].endswith(".pdf")
-    ):
-        raise HTTPException(
-            status_code=400,
-            detail="Некорректная ссылка на PDF",
-        )
-
-    return {
-        "available": True,
-        "url": url,
-        "updated_at": datetime.now().isoformat(timespec="minutes"),
-    }
-
-
-@app.get("/api/replacements/open")
-async def open_replacements():
-    url = REPLACEMENTS_URL
-
-    if not url:
-        raise HTTPException(
-            status_code=404,
-            detail="Ссылка на замены не настроена",
-        )
-
-    if (
-        urlparse(url).hostname != ALLOWED_HOST
-        or not url.lower().split("?")[0].endswith(".pdf")
-    ):
-        raise HTTPException(status_code=400, detail="Некорректная ссылка")
-
-    return RedirectResponse(url)
