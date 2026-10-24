@@ -8,106 +8,94 @@
 <title>Расписание РКТМ</title>
 <style>
 :root {
-  color-scheme: light;
   --bg: #f4f6fb;
-  --card: #ffffff;
+  --card: #fff;
   --text: #172033;
   --muted: #748096;
   --accent: #315efb;
-  --line: #e6eaf2;
+  --line: #e4e9f2;
 }
 * { box-sizing: border-box; }
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
 }
 button, input, select { font: inherit; }
 button { cursor: pointer; }
-.app { max-width: 900px; margin: auto; padding: 20px 16px 40px; }
-.top {
-  display: flex; align-items: center; gap: 13px;
-  margin: 8px 0 25px;
-}
+.app { max-width: 900px; margin: auto; padding: 20px 16px 36px; }
+.top { display: flex; align-items: center; gap: 13px; margin: 6px 0 24px; }
 .logo {
-  width: 48px; height: 48px; border-radius: 16px;
-  background: var(--accent); color: white;
-  display: grid; place-items: center;
-  font-weight: 800; font-size: 16px;
-  box-shadow: 0 8px 20px #315efb35;
+  display: grid; place-items: center; flex-shrink: 0;
+  width: 48px; height: 48px; border-radius: 15px;
+  background: var(--accent); color: white; font-weight: 800;
+  box-shadow: 0 7px 20px #315efb30;
 }
-h1 { font-size: 23px; margin: 0 0 4px; letter-spacing: -.5px; }
-.subtitle { color: var(--muted); font-size: 13px; }
+h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -.4px; }
+.subtitle { color: var(--muted); font-size: 12px; line-height: 1.4; }
 .hero {
-  padding: 24px; border-radius: 24px;
-  background: linear-gradient(135deg, #244eea, #6584ff);
-  color: white; margin-bottom: 18px;
+  padding: 25px; border-radius: 23px; margin-bottom: 17px;
+  color: white; background: linear-gradient(130deg, #244de8, #718bff);
 }
-.hero small { opacity: .8; font-weight: 600; }
-.hero h2 { margin: 9px 0; font-size: 27px; }
-.hero p { margin: 0; opacity: .85; line-height: 1.5; font-size: 14px; }
+.hero small { opacity: .8; font-weight: 700; letter-spacing: .5px; }
+.hero h2 { font-size: 27px; margin: 10px 0; }
+.hero p { margin: 0; line-height: 1.5; font-size: 14px; opacity: .9; }
 .panel {
   background: var(--card); border: 1px solid var(--line);
-  border-radius: 20px; padding: 18px; margin-bottom: 15px;
-  box-shadow: 0 4px 18px #1a2a4b06;
+  border-radius: 19px; padding: 17px; margin-bottom: 20px;
 }
 .label {
-  display: block; color: var(--muted); font-size: 12px;
-  font-weight: 700; margin-bottom: 9px;
+  display: block; margin-bottom: 8px; font-size: 12px;
+  font-weight: 700; color: var(--muted);
 }
 select, input {
-  width: 100%; border: 1px solid var(--line);
-  border-radius: 13px; padding: 14px;
-  background: #fff; color: var(--text); outline: none;
+  display: block; width: 100%; padding: 13px;
+  background: white; color: var(--text);
+  border: 1px solid var(--line); border-radius: 12px;
+  outline: none;
 }
 select:focus, input:focus { border-color: var(--accent); }
 .search { margin-top: 16px; }
-.section-title {
-  font-size: 17px; font-weight: 750; margin: 22px 2px 12px;
-}
+.section-title { margin: 22px 2px 12px; font-size: 17px; font-weight: 750; }
 .group-grid {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;
 }
 .group {
-  text-align: left; min-height: 78px;
-  border: 1px solid var(--line); border-radius: 16px;
-  background: white; padding: 15px;
-  color: var(--text); transition: .15s;
+  min-width: 0; min-height: 78px; padding: 14px;
+  text-align: left; background: white; color: var(--text);
+  border: 1px solid var(--line); border-radius: 15px;
+  transition: border-color .15s, transform .15s;
 }
 .group:hover { border-color: var(--accent); transform: translateY(-1px); }
-.group strong { display: block; font-size: 16px; }
-.group span { display: block; color: var(--muted); font-size: 12px; margin-top: 7px; }
+.group strong { display: block; overflow-wrap: anywhere; font-size: 16px; }
+.group span { display: block; margin-top: 7px; color: var(--muted); font-size: 12px; }
 .btn {
-  border: 0; border-radius: 12px; padding: 12px 16px;
-  background: var(--accent); color: white; font-weight: 650;
+  border: 0; border-radius: 12px; padding: 11px 14px;
+  background: var(--accent); color: white; font-weight: 700;
 }
-.btn.secondary { background: #edf1ff; color: var(--accent); }
+.btn.secondary { background: #eaf0ff; color: var(--accent); }
 .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
-.toolbar h2 { margin: 0; font-size: 21px; }
+.toolbar h2 { margin: 0 0 4px; font-size: 21px; overflow-wrap: anywhere; }
 .schedule-shell {
   background: white; border: 1px solid var(--line);
-  border-radius: 18px; overflow: hidden;
+  border-radius: 17px; overflow: hidden;
 }
 .schedule-frame {
-  width: 100%; height: 70vh; min-height: 480px;
-  border: 0; display: block; background: white;
+  display: block; width: 100%; height: 72vh; min-height: 480px;
+  border: 0; background: white;
 }
-.status {
-  padding: 25px 12px; text-align: center;
-  color: var(--muted); font-size: 14px;
-}
+.status { padding: 25px 12px; text-align: center; color: var(--muted); font-size: 14px; }
 .error { color: #c43232; }
 .hidden { display: none !important; }
-.footer { color: var(--muted); font-size: 12px; text-align: center; padding: 18px 0; }
-@media (max-width: 620px) {
-  .app { padding: 15px 12px 28px; }
-  .hero { padding: 21px; border-radius: 20px; }
+.footer { padding-top: 20px; text-align: center; color: var(--muted); font-size: 12px; }
+@media(max-width: 620px) {
+  .app { padding: 14px 12px 28px; }
+  .hero { padding: 21px; border-radius: 19px; }
   .hero h2 { font-size: 24px; }
-  .panel { padding: 15px; }
   .group-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .schedule-frame { height: 72vh; min-height: 420px; }
+  .panel { padding: 14px; }
+  .schedule-frame { height: 72vh; min-height: 430px; }
 }
 </style>
 </head>
@@ -124,8 +112,8 @@ select:focus, input:focus { border-color: var(--accent); }
   <section id="home">
     <div class="hero">
       <small>РАСПИСАНИЕ КОЛЛЕДЖА</small>
-      <h2>Твоя пара. Твоё время.</h2>
-      <p>Выбери нужный раздел и найди свою группу.</p>
+      <h2>Всё расписание в одном месте</h2>
+      <p>Выбери нужный раздел и найди расписание группы, преподавателя или аудитории.</p>
     </div>
 
     <div class="panel">
@@ -135,15 +123,16 @@ select:focus, input:focus { border-color: var(--accent); }
         <option value="Praspisan">Расписание преподавателей</option>
         <option value="Araspisan">Расписание аудиторий</option>
       </select>
+
       <div class="search">
-        <label class="label" for="search">Поиск группы</label>
-        <input id="search" type="search" placeholder="Например, АТ-07">
+        <label class="label" for="search">Поиск</label>
+        <input id="search" type="search" placeholder="Название группы или фамилия">
       </div>
     </div>
 
-    <div class="section-title" id="groupsTitle">Выбери группу</div>
+    <div class="section-title" id="groupsTitle">Доступные варианты</div>
     <div id="groups" class="group-grid"></div>
-    <div id="status" class="status">Загружаем список групп…</div>
+    <div id="status" class="status">Загружаем список…</div>
   </section>
 
   <section id="scheduleView" class="hidden">
@@ -151,16 +140,16 @@ select:focus, input:focus { border-color: var(--accent); }
       <button id="back" class="btn secondary">← Назад</button>
       <div>
         <h2 id="groupTitle">Расписание</h2>
-        <div class="subtitle" id="groupSubtitle">РКТМ</div>
+        <div class="subtitle" id="groupSubtitle"></div>
       </div>
     </div>
     <div class="schedule-shell">
       <div id="scheduleStatus" class="status">Загружаем расписание…</div>
-      <iframe id="scheduleFrame" class="schedule-frame hidden" title="Расписание группы"></iframe>
+      <iframe id="scheduleFrame" class="schedule-frame hidden" title="Расписание"></iframe>
     </div>
   </section>
 
-  <div class="footer">Официальный источник: rktm.info</div>
+  <div class="footer">Данные загружаются с сайта rktm.info</div>
 </div>
 
 <script>
@@ -175,147 +164,187 @@ const scheduleFrame = document.getElementById("scheduleFrame");
 const scheduleStatus = document.getElementById("scheduleStatus");
 
 let allGroups = [];
-let requestNumber = 0;
+let groupsRequest = 0;
+let scheduleRequest = 0;
 
 function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, char => ({
+  return String(value).replace(/[&<>"']/g, ch => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;",
     '"': "&quot;", "'": "&#39;"
-  })[char]);
+  })[ch]);
+}
+
+function showStatus(element, message, isError = false) {
+  element.textContent = message;
+  element.classList.remove("hidden");
+  element.classList.toggle("error", isError);
 }
 
 async function loadGroups() {
-  const currentRequest = ++requestNumber;
+  const request = ++groupsRequest;
   const source = sourceSelect.value;
 
-  groupsBox.innerHTML = "";
-  statusBox.classList.remove("hidden", "error");
-  statusBox.textContent = "Загружаем список групп…";
-  groupsTitle.textContent = "Выбери группу";
+  groupsBox.replaceChildren();
+  showStatus(statusBox, "Загружаем список…");
+  groupsTitle.textContent = "Доступные варианты";
 
   try {
     const response = await fetch(`/api/groups/${encodeURIComponent(source)}`);
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.detail || "Не удалось получить список групп");
+      throw new Error(data.detail || "Ошибка загрузки списка");
     }
-    if (currentRequest !== requestNumber) return;
+    if (request !== groupsRequest) return;
 
-    allGroups = data.groups || [];
+    allGroups = Array.isArray(data.groups) ? data.groups : [];
     renderGroups();
 
     if (!allGroups.length) {
-      statusBox.classList.remove("hidden");
-      statusBox.textContent = "Группы не найдены в источнике расписания.";
-    } else {
-      statusBox.classList.add("hidden");
+      showStatus(statusBox, "Список пуст. Возможно, структура источника отличается.");
     }
   } catch (error) {
-    if (currentRequest !== requestNumber) return;
-    statusBox.classList.remove("hidden");
-    statusBox.classList.add("error");
-    statusBox.textContent = error.message || "Ошибка загрузки групп.";
+    if (request !== groupsRequest) return;
+    showStatus(statusBox, error.message || "Не удалось загрузить список.", true);
   }
 }
 
 function renderGroups() {
-  const query = searchInput.value.trim().toLowerCase();
-  const filtered = allGroups.filter(group =>
-    group.name.toLowerCase().includes(query)
+  const query = searchInput.value.trim().toLocaleLowerCase("ru");
+  const filtered = allGroups.filter(item =>
+    item.name.toLocaleLowerCase("ru").includes(query)
   );
 
-  groupsBox.innerHTML = "";
-  filtered.forEach(group => {
+  groupsBox.replaceChildren();
+
+  filtered.forEach(item => {
     const button = document.createElement("button");
     button.className = "group";
-    button.innerHTML =
-      `<strong>${escapeHtml(group.name)}</strong>` +
-      `<span>Открыть расписание →</span>`;
-    button.addEventListener("click", () => openGroup(group));
+
+    const name = document.createElement("strong");
+    name.textContent = item.name;
+
+    const hint = document.createElement("span");
+    hint.textContent = "Открыть расписание →";
+
+    button.append(name, hint);
+    button.addEventListener("click", () => openSchedule(item));
     groupsBox.appendChild(button);
   });
 
   groupsTitle.textContent = query
     ? `Результаты поиска: ${filtered.length}`
-    : `Группы (${filtered.length})`;
+    : `Доступно: ${filtered.length}`;
 
   if (filtered.length) {
     statusBox.classList.add("hidden");
   } else {
-    statusBox.classList.remove("hidden");
-    statusBox.classList.remove("error");
-    statusBox.textContent = query
-      ? "По этому запросу ничего не найдено."
-      : "В этом разделе нет доступных групп.";
+    showStatus(
+      statusBox,
+      query ? "Ничего не найдено. Попробуй изменить запрос." : "Список не найден."
+    );
   }
 }
 
-async function openGroup(group) {
+function makeReadableHtml(rawHtml, baseUrl) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(rawHtml, "text/html");
+
+  // Относительные ссылки и изображения должны ссылаться на сайт РКТМ.
+  const base = doc.createElement("base");
+  base.href = baseUrl;
+  doc.head.prepend(base);
+
+  // Убираем устаревшие параметры оформления, не меняя данные таблиц.
+  const style = doc.createElement("style");
+  style.textContent = `
+    html { color-scheme: light; }
+    body {
+      margin: 12px;
+      color: #172033;
+      background: #fff;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
+    table {
+      border-collapse: collapse;
+      max-width: 100%;
+      width: 100%;
+      table-layout: auto;
+    }
+    td, th {
+      border: 1px solid #dfe4ee;
+      padding: 8px;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+    tr:first-child td, tr:first-child th, th {
+      background: #edf1ff;
+    }
+    p { line-height: 1.4; margin: 4px 0; }
+    font { color: inherit !important; }
+    img { max-width: 100%; height: auto; }
+    a { color: #315efb; }
+    @media (max-width: 600px) {
+      body { margin: 5px; font-size: 12px; }
+      td, th { padding: 5px; }
+    }
+  `;
+  doc.head.appendChild(style);
+
+  // Устанавливаем корректную кодировку для содержимого iframe.
+  const charset = doc.querySelector("meta[charset]");
+  if (charset) charset.setAttribute("charset", "utf-8");
+  else {
+    const meta = doc.createElement("meta");
+    meta.setAttribute("charset", "utf-8");
+    doc.head.prepend(meta);
+  }
+
+  return "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
+}
+
+async function openSchedule(item) {
+  const request = ++scheduleRequest;
   const source = sourceSelect.value;
+
   home.classList.add("hidden");
   scheduleView.classList.remove("hidden");
-  document.getElementById("groupTitle").textContent = group.name;
+
+  document.getElementById("groupTitle").textContent = item.name;
   document.getElementById("groupSubtitle").textContent =
     source === "raspisan" ? "Расписание студентов" :
     source === "Praspisan" ? "Расписание преподавателей" :
     "Расписание аудиторий";
 
   scheduleFrame.classList.add("hidden");
-  scheduleStatus.classList.remove("hidden", "error");
-  scheduleStatus.textContent = "Загружаем расписание…";
   scheduleFrame.srcdoc = "";
+  showStatus(scheduleStatus, "Загружаем расписание…");
 
   try {
     const response = await fetch(
-      `/api/group/${encodeURIComponent(source)}/${encodeURIComponent(group.file)}`
+      `/api/group/${encodeURIComponent(source)}/${encodeURIComponent(item.file)}`
     );
     const data = await response.json();
 
     if (!response.ok) {
       throw new Error(data.detail || "Не удалось загрузить расписание");
     }
+    if (request !== scheduleRequest) return;
 
-    const base = escapeHtml(data.base_url);
-    const extraStyles = `
-      <style>
-        body { font-family: Arial, sans-serif; color: #172033;
-               margin: 16px; background: #fff; }
-        table { border-collapse: collapse; max-width: 100%; width: 100%;
-                font-size: 14px; }
-        td, th { border: 1px solid #dfe4ee; padding: 9px;
-                 vertical-align: top; }
-        th { background: #edf1ff; }
-        tr:nth-child(even) { background: #f8f9fc; }
-        img { max-width: 100%; height: auto; }
-        p { line-height: 1.5; }
-        a { color: #315efb; }
-        @media(max-width:600px) {
-          body { margin: 8px; }
-          table { font-size: 12px; }
-          td, th { padding: 6px; }
-        }
-      </style>`;
-
-    let html = data.html || "";
-    if (/<head[^>]*>/i.test(html)) {
-      html = html.replace(/<head([^>]*)>/i,
-        `<head$1><base href="${base}">${extraStyles}`);
-    } else {
-      html = `<head><meta charset="utf-8"><base href="${base}">${extraStyles}</head>${html}`;
-    }
-
+    const html = makeReadableHtml(data.html || "", data.base_url);
     scheduleFrame.srcdoc = html;
+
     scheduleStatus.classList.add("hidden");
     scheduleFrame.classList.remove("hidden");
   } catch (error) {
-    scheduleStatus.classList.remove("hidden");
-    scheduleStatus.classList.add("error");
-    scheduleStatus.textContent = error.message || "Ошибка загрузки расписания.";
+    if (request !== scheduleRequest) return;
+    showStatus(scheduleStatus, error.message || "Ошибка загрузки расписания.", true);
   }
 }
 
 document.getElementById("back").addEventListener("click", () => {
+  ++scheduleRequest;
   scheduleFrame.srcdoc = "";
   scheduleView.classList.add("hidden");
   home.classList.remove("hidden");
@@ -325,6 +354,7 @@ sourceSelect.addEventListener("change", () => {
   searchInput.value = "";
   loadGroups();
 });
+
 searchInput.addEventListener("input", renderGroups);
 
 loadGroups();
