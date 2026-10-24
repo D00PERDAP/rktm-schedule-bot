@@ -8,94 +8,123 @@
 <title>Расписание РКТМ</title>
 <style>
 :root {
-  --bg: #f4f6fb;
-  --card: #fff;
-  --text: #172033;
-  --muted: #748096;
-  --accent: #315efb;
-  --line: #e4e9f2;
+  --bg:#f4f6fb; --card:#fff; --text:#172033; --muted:#788398;
+  --accent:#315efb; --line:#e6eaf2; --soft:#edf1ff;
 }
-* { box-sizing: border-box; }
+* { box-sizing:border-box; }
 body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
 }
-button, input, select { font: inherit; }
-button { cursor: pointer; }
-.app { max-width: 900px; margin: auto; padding: 20px 16px 36px; }
-.top { display: flex; align-items: center; gap: 13px; margin: 6px 0 24px; }
+button,input,select { font:inherit; }
+button { cursor:pointer; }
+.app { max-width:900px; margin:auto; padding:18px 15px 35px; }
+.top { display:flex; align-items:center; gap:12px; margin:5px 0 23px; }
 .logo {
-  display: grid; place-items: center; flex-shrink: 0;
-  width: 48px; height: 48px; border-radius: 15px;
-  background: var(--accent); color: white; font-weight: 800;
-  box-shadow: 0 7px 20px #315efb30;
+  width:47px; height:47px; flex-shrink:0; border-radius:15px;
+  display:grid; place-items:center; background:var(--accent);
+  color:#fff; font-weight:850; box-shadow:0 7px 20px #315efb30;
 }
-h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -.4px; }
-.subtitle { color: var(--muted); font-size: 12px; line-height: 1.4; }
+h1 { font-size:22px; margin:0 0 4px; letter-spacing:-.4px; }
+.muted { color:var(--muted); font-size:12px; line-height:1.5; }
 .hero {
-  padding: 25px; border-radius: 23px; margin-bottom: 17px;
-  color: white; background: linear-gradient(130deg, #244de8, #718bff);
+  padding:24px; border-radius:22px; color:#fff; margin-bottom:16px;
+  background:linear-gradient(130deg,#244de8,#718bff);
 }
-.hero small { opacity: .8; font-weight: 700; letter-spacing: .5px; }
-.hero h2 { font-size: 27px; margin: 10px 0; }
-.hero p { margin: 0; line-height: 1.5; font-size: 14px; opacity: .9; }
+.hero small { font-weight:750; opacity:.8; letter-spacing:.5px; }
+.hero h2 { font-size:26px; margin:9px 0; }
+.hero p { margin:0; opacity:.9; font-size:14px; line-height:1.5; }
 .panel {
-  background: var(--card); border: 1px solid var(--line);
-  border-radius: 19px; padding: 17px; margin-bottom: 20px;
+  background:#fff; border:1px solid var(--line); border-radius:18px;
+  padding:16px; margin-bottom:18px;
 }
 .label {
-  display: block; margin-bottom: 8px; font-size: 12px;
-  font-weight: 700; color: var(--muted);
+  display:block; color:var(--muted); font-size:12px;
+  font-weight:750; margin-bottom:8px;
 }
-select, input {
-  display: block; width: 100%; padding: 13px;
-  background: white; color: var(--text);
-  border: 1px solid var(--line); border-radius: 12px;
-  outline: none;
+select,input {
+  display:block; width:100%; padding:13px;
+  border:1px solid var(--line); border-radius:12px;
+  background:#fff; color:var(--text); outline:none;
 }
-select:focus, input:focus { border-color: var(--accent); }
-.search { margin-top: 16px; }
-.section-title { margin: 22px 2px 12px; font-size: 17px; font-weight: 750; }
-.group-grid {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;
-}
+select:focus,input:focus { border-color:var(--accent); }
+.search { margin-top:14px; }
+.section-title { font-size:17px; font-weight:800; margin:22px 2px 12px; }
+.group-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
 .group {
-  min-width: 0; min-height: 78px; padding: 14px;
-  text-align: left; background: white; color: var(--text);
-  border: 1px solid var(--line); border-radius: 15px;
-  transition: border-color .15s, transform .15s;
+  min-width:0; text-align:left; background:#fff; color:var(--text);
+  border:1px solid var(--line); border-radius:15px; padding:15px;
 }
-.group:hover { border-color: var(--accent); transform: translateY(-1px); }
-.group strong { display: block; overflow-wrap: anywhere; font-size: 16px; }
-.group span { display: block; margin-top: 7px; color: var(--muted); font-size: 12px; }
+.group:hover { border-color:var(--accent); }
+.group strong { display:block; overflow-wrap:anywhere; font-size:16px; }
+.group span { display:block; color:var(--muted); margin-top:7px; font-size:12px; }
 .btn {
-  border: 0; border-radius: 12px; padding: 11px 14px;
-  background: var(--accent); color: white; font-weight: 700;
+  border:0; border-radius:12px; padding:11px 14px;
+  background:var(--accent); color:#fff; font-weight:750;
 }
-.btn.secondary { background: #eaf0ff; color: var(--accent); }
-.toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
-.toolbar h2 { margin: 0 0 4px; font-size: 21px; overflow-wrap: anywhere; }
-.schedule-shell {
-  background: white; border: 1px solid var(--line);
-  border-radius: 17px; overflow: hidden;
+.btn.secondary { background:var(--soft); color:var(--accent); }
+.toolbar { display:flex; align-items:center; gap:12px; margin-bottom:17px; }
+.toolbar h2 { font-size:21px; margin:0 0 4px; overflow-wrap:anywhere; }
+.summary {
+  background:#fff; border:1px solid var(--line); border-radius:17px;
+  padding:15px; margin-bottom:16px; display:flex;
+  align-items:center; justify-content:space-between; gap:12px;
 }
-.schedule-frame {
-  display: block; width: 100%; height: 72vh; min-height: 480px;
-  border: 0; background: white;
+.summary strong { font-size:15px; }
+.summary .count {
+  background:var(--soft); color:var(--accent);
+  border-radius:11px; padding:8px 10px; font-size:12px;
+  font-weight:800; white-space:nowrap;
 }
-.status { padding: 25px 12px; text-align: center; color: var(--muted); font-size: 14px; }
-.error { color: #c43232; }
-.hidden { display: none !important; }
-.footer { padding-top: 20px; text-align: center; color: var(--muted); font-size: 12px; }
-@media(max-width: 620px) {
-  .app { padding: 14px 12px 28px; }
-  .hero { padding: 21px; border-radius: 19px; }
-  .hero h2 { font-size: 24px; }
-  .group-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .panel { padding: 14px; }
-  .schedule-frame { height: 72vh; min-height: 430px; }
+.day-list {
+  display:flex; gap:8px; overflow-x:auto; padding:2px 1px 12px;
+  scrollbar-width:thin;
+}
+.day-button {
+  flex:0 0 auto; min-width:94px; border:1px solid var(--line);
+  border-radius:14px; background:#fff; color:var(--text);
+  padding:11px 13px; text-align:left;
+}
+.day-button .day-name { display:block; font-weight:800; font-size:13px; }
+.day-button .day-date { display:block; margin-top:5px; font-size:11px; color:var(--muted); }
+.day-button.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+.day-button.active .day-date { color:#e0e7ff; }
+.day-heading { margin:12px 2px 14px; }
+.day-heading h3 { font-size:20px; margin:0 0 4px; }
+.lesson-list { display:grid; gap:11px; }
+.lesson {
+  display:grid; grid-template-columns:105px minmax(0,1fr);
+  gap:14px; padding:16px; background:#fff;
+  border:1px solid var(--line); border-radius:17px;
+}
+.lesson-time {
+  background:var(--soft); color:var(--accent);
+  border-radius:12px; padding:12px 8px; text-align:center;
+  align-self:start; font-size:13px; font-weight:800; line-height:1.5;
+}
+.lesson-number { display:block; font-size:11px; opacity:.75; margin-bottom:4px; }
+.lesson-subject { font-weight:800; font-size:16px; line-height:1.4; overflow-wrap:anywhere; }
+.lesson-details { margin-top:8px; display:grid; gap:7px; }
+.detail { display:flex; gap:8px; align-items:flex-start; color:#5f6c81; font-size:13px; line-height:1.45; }
+.detail-icon { width:18px; flex-shrink:0; text-align:center; }
+.empty {
+  text-align:center; background:#fff; border:1px solid var(--line);
+  border-radius:17px; padding:28px 18px; color:var(--muted);
+  line-height:1.6;
+}
+.status { padding:24px 12px; text-align:center; color:var(--muted); font-size:14px; }
+.error { color:#bd3333; }
+.hidden { display:none!important; }
+.footer { padding-top:22px; text-align:center; color:var(--muted); font-size:12px; }
+@media(max-width:620px) {
+  .app { padding:13px 11px 28px; }
+  .hero { padding:21px; }
+  .hero h2 { font-size:24px; }
+  .group-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .lesson { grid-template-columns:82px minmax(0,1fr); gap:10px; padding:11px; }
+  .lesson-time { font-size:12px; padding:10px 4px; }
+  .lesson-subject { font-size:15px; }
+  .day-button { min-width:88px; }
 }
 </style>
 </head>
@@ -105,17 +134,16 @@ select:focus, input:focus { border-color: var(--accent); }
     <div class="logo">РКТМ</div>
     <div>
       <h1>Расписание занятий</h1>
-      <div class="subtitle">Ростовский колледж технологий машиностроения</div>
+      <div class="muted">Ростовский колледж технологий машиностроения</div>
     </div>
   </header>
 
   <section id="home">
     <div class="hero">
       <small>РАСПИСАНИЕ КОЛЛЕДЖА</small>
-      <h2>Всё расписание в одном месте</h2>
-      <p>Выбери нужный раздел и найди расписание группы, преподавателя или аудитории.</p>
+      <h2>Всё по полочкам</h2>
+      <p>Выбери раздел и нужную группу, преподавателя или аудиторию.</p>
     </div>
-
     <div class="panel">
       <label class="label" for="source">Раздел расписания</label>
       <select id="source">
@@ -123,13 +151,11 @@ select:focus, input:focus { border-color: var(--accent); }
         <option value="Praspisan">Расписание преподавателей</option>
         <option value="Araspisan">Расписание аудиторий</option>
       </select>
-
       <div class="search">
         <label class="label" for="search">Поиск</label>
-        <input id="search" type="search" placeholder="Название группы или фамилия">
+        <input id="search" type="search" placeholder="Например, АТ-07 или фамилия">
       </div>
     </div>
-
     <div class="section-title" id="groupsTitle">Доступные варианты</div>
     <div id="groups" class="group-grid"></div>
     <div id="status" class="status">Загружаем список…</div>
@@ -139,17 +165,26 @@ select:focus, input:focus { border-color: var(--accent); }
     <div class="toolbar">
       <button id="back" class="btn secondary">← Назад</button>
       <div>
-        <h2 id="groupTitle">Расписание</h2>
-        <div class="subtitle" id="groupSubtitle"></div>
+        <h2 id="itemTitle">Расписание</h2>
+        <div id="itemSubtitle" class="muted"></div>
       </div>
     </div>
-    <div class="schedule-shell">
-      <div id="scheduleStatus" class="status">Загружаем расписание…</div>
-      <iframe id="scheduleFrame" class="schedule-frame hidden" title="Расписание"></iframe>
+
+    <div class="summary">
+      <div>
+        <div class="muted">ВЫБРАННЫЙ РАЗДЕЛ</div>
+        <strong id="sectionName">Расписание</strong>
+      </div>
+      <div id="lessonCount" class="count">0 занятий</div>
     </div>
+
+    <div id="days" class="day-list"></div>
+    <div id="dayHeading" class="day-heading"></div>
+    <div id="lessons" class="lesson-list"></div>
+    <div id="scheduleStatus" class="status hidden"></div>
   </section>
 
-  <div class="footer">Данные загружаются с сайта rktm.info</div>
+  <div class="footer">Источник данных: rktm.info</div>
 </div>
 
 <script>
@@ -157,61 +192,235 @@ const sourceSelect = document.getElementById("source");
 const searchInput = document.getElementById("search");
 const groupsBox = document.getElementById("groups");
 const statusBox = document.getElementById("status");
-const groupsTitle = document.getElementById("groupsTitle");
 const home = document.getElementById("home");
 const scheduleView = document.getElementById("scheduleView");
-const scheduleFrame = document.getElementById("scheduleFrame");
+const daysBox = document.getElementById("days");
+const lessonsBox = document.getElementById("lessons");
+const dayHeading = document.getElementById("dayHeading");
 const scheduleStatus = document.getElementById("scheduleStatus");
 
-let allGroups = [];
-let groupsRequest = 0;
+let allItems = [];
+let daysData = [];
+let activeDay = 0;
+let listRequest = 0;
 let scheduleRequest = 0;
 
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, ch => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;",
-    '"': "&quot;", "'": "&#39;"
-  })[ch]);
+const WEEKDAYS = [
+  { full:"понедельник", short:"пнд", name:"Понедельник" },
+  { full:"вторник", short:"втр", name:"Вторник" },
+  { full:"среда", short:"срд", name:"Среда" },
+  { full:"четверг", short:"чтв", name:"Четверг" },
+  { full:"пятница", short:"птн", name:"Пятница" },
+  { full:"суббота", short:"сбт", name:"Суббота" },
+  { full:"воскресенье", short:"вск", name:"Воскресенье" }
+];
+
+const PERIODS = [
+  "08:30–09:15", "09:25–10:10", "10:30–11:15",
+  "11:25–12:10", "12:30–13:15", "13:25–14:10",
+  "14:30–15:15", "15:25–16:10", "16:30–17:15",
+  "17:25–18:10", "18:20–19:05", "19:30–20:15"
+];
+
+function showStatus(el, message, error = false) {
+  el.textContent = message;
+  el.classList.remove("hidden");
+  el.classList.toggle("error", error);
 }
 
-function showStatus(element, message, isError = false) {
-  element.textContent = message;
-  element.classList.remove("hidden");
-  element.classList.toggle("error", isError);
+function normalise(s) {
+  return String(s || "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
 }
 
-async function loadGroups() {
-  const request = ++groupsRequest;
-  const source = sourceSelect.value;
+function getCellText(cell) {
+  const clone = cell.cloneNode(true);
+  clone.querySelectorAll("br").forEach(br => br.replaceWith("\n"));
+  clone.querySelectorAll("script,style").forEach(el => el.remove());
+  return clone.textContent
+    .replace(/\u00a0/g, " ")
+    .split(/\n/)
+    .map(s => s.replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .join("\n");
+}
 
-  groupsBox.replaceChildren();
-  showStatus(statusBox, "Загружаем список…");
-  groupsTitle.textContent = "Доступные варианты";
-
-  try {
-    const response = await fetch(`/api/groups/${encodeURIComponent(source)}`);
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.detail || "Ошибка загрузки списка");
+function detectDay(text) {
+  const cleaned = normalise(text).toLocaleLowerCase("ru");
+  for (let i = 0; i < WEEKDAYS.length; i++) {
+    const d = WEEKDAYS[i];
+    const re = new RegExp("\\b(" + d.full + "|" + d.short + ")\\b", "i");
+    if (re.test(cleaned)) {
+      const date = cleaned.match(/(?:,|\s)\s*(\d{1,2})(?:\s+([а-яё]+))?/i);
+      let label = d.name;
+      if (date) {
+        label += ", " + date[1];
+        if (date[2]) label += " " + date[2];
+      }
+      return { index:i, label };
     }
-    if (request !== groupsRequest) return;
-
-    allGroups = Array.isArray(data.groups) ? data.groups : [];
-    renderGroups();
-
-    if (!allGroups.length) {
-      showStatus(statusBox, "Список пуст. Возможно, структура источника отличается.");
-    }
-  } catch (error) {
-    if (request !== groupsRequest) return;
-    showStatus(statusBox, error.message || "Не удалось загрузить список.", true);
   }
+  return null;
+}
+
+function extractTime(text) {
+  const m = normalise(text).match(/(\d{1,2}[:.]\d{2})\s*[-–—]\s*(\d{1,2}[:.]\d{2})/);
+  return m ? m[1].replace(".", ":") + "–" + m[2].replace(".", ":") : "";
+}
+
+function isOnlyTime(text) {
+  return /^\s*\d{1,2}[:.]\d{2}\s*[-–—]\s*\d{1,2}[:.]\d{2}\s*$/.test(normalise(text));
+}
+
+function isHeaderOrNoise(text) {
+  const s = normalise(text);
+  if (!s) return true;
+  if (isOnlyTime(s)) return true;
+  if (/^(?:расписание занятий|понедельник|вторник|среда|четверг|пятница|суббота|воскресенье)$/i.test(s)) return true;
+  return false;
+}
+
+function makeDay(label, weekdayIndex) {
+  return { label, weekdayIndex, lessons:[] };
+}
+
+function parseSchedule(rawHtml) {
+  const doc = new DOMParser().parseFromString(rawHtml, "text/html");
+  const tables = [...doc.querySelectorAll("table")];
+  const rows = tables.flatMap(table => [...table.querySelectorAll("tr")]);
+
+  let parsedDays = [];
+  let currentDay = null;
+  let periodTimes = [...PERIODS];
+  let slotIndex = 0;
+
+  function ensureDay(label, weekdayIndex) {
+    const last = parsedDays[parsedDays.length - 1];
+    if (last && last.label === label) return last;
+    const day = makeDay(label, weekdayIndex);
+    parsedDays.push(day);
+    return day;
+  }
+
+  for (const row of rows) {
+    const cells = [...row.querySelectorAll(":scope > td, :scope > th")];
+    if (!cells.length) continue;
+
+    const texts = cells.map(getCellText);
+    const rowText = texts.join(" ");
+    const detected = detectDay(rowText);
+
+    // Заголовок нового дня.
+    if (detected) {
+      currentDay = ensureDay(detected.label, detected.index);
+      slotIndex = 0;
+
+      const headingOnly = texts.every(t =>
+        !t || detectDay(t) || isOnlyTime(t) || isHeaderOrNoise(t)
+      );
+      if (headingOnly) continue;
+    }
+
+    // Если строка содержит сетку времени, сохраняем время каждой колонки.
+    const timeCells = texts.map(extractTime);
+    const foundTimes = timeCells.filter(Boolean);
+    if (foundTimes.length >= 2 && texts.every(t => !t || extractTime(t) || isHeaderOrNoise(t))) {
+      periodTimes = timeCells.map((t, i) => t || periodTimes[i] || "");
+      continue;
+    }
+
+    if (!currentDay) continue;
+
+    // Вариант: одна ячейка содержит сразу время и описание пары.
+    let addedFromRow = false;
+    for (let i = 0; i < cells.length; i++) {
+      const text = texts[i];
+      if (!text || isHeaderOrNoise(text)) continue;
+
+      const time = extractTime(text);
+      const content = normalise(text.replace(/(\d{1,2}[:.]\d{2})\s*[-–—]\s*(\d{1,2}[:.]\d{2})/, ""));
+      if (time && content.length > 2) {
+        currentDay.lessons.push(makeLesson(content, time, currentDay.lessons.length));
+        addedFromRow = true;
+      }
+    }
+    if (addedFromRow) continue;
+
+    // Вариант: отдельная ячейка на каждую пару, как в старых файлах РКТМ.
+    const meaningful = texts
+      .map((text, index) => ({ text:normalise(text), index }))
+      .filter(x => x.text && !isHeaderOrNoise(x.text));
+
+    if (!meaningful.length) continue;
+
+    for (const item of meaningful) {
+      const text = item.text;
+      if (detectDay(text)) continue;
+
+      let time = extractTime(text);
+      if (!time) {
+        // В таблице с несколькими колонками позиция соответствует паре.
+        if (meaningful.length > 1) {
+          time = periodTimes[item.index] || "";
+        } else {
+          time = periodTimes[slotIndex] || "";
+          slotIndex++;
+        }
+      }
+
+      const clean = text.replace(/(\d{1,2}[:.]\d{2})\s*[-–—]\s*(\d{1,2}[:.]\d{2})/, "").trim();
+      if (clean.length < 2) continue;
+
+      currentDay.lessons.push(makeLesson(clean, time, currentDay.lessons.length));
+    }
+  }
+
+  // Убираем полностью пустые дни.
+  parsedDays = parsedDays.filter(day => day.lessons.length > 0);
+
+  // Если в документе нет распознанных заголовков дней — не выдумываем дни.
+  return parsedDays;
+}
+
+function makeLesson(text, time, index) {
+  const lines = String(text)
+    .split(/\n| {2,}/)
+    .map(s => normalise(s))
+    .filter(Boolean);
+
+  const subject = lines[0] || "Занятие";
+  const details = lines.slice(1);
+
+  let teacher = "";
+  let room = "";
+
+  for (const line of details) {
+    if (/\b(?:ауд\.?|каб\.?|кабинет|акт\.?\s*зал)\b/i.test(line) ||
+        /^\d{1,4}[а-яё]?$/i.test(line)) {
+      room = room ? room + " · " + line : line;
+    } else if (!teacher) {
+      teacher = line;
+    } else {
+      teacher += " · " + line;
+    }
+  }
+
+  // Некоторые HTML используют переносы без явного разделения строк.
+  const full = normalise(text);
+  if (!teacher) {
+    const teacherMatch = full.match(/([А-ЯЁ][а-яё-]+(?:\s+[А-ЯЁ]\.[А-ЯЁ]\.)+)/);
+    if (teacherMatch) teacher = teacherMatch[1];
+  }
+  if (!room) {
+    const roomMatch = full.match(/\b(?:акт\.?\s*зал|\d{1,3}[а-яё]?)\b/i);
+    if (roomMatch) room = roomMatch[0];
+  }
+
+  return { subject, teacher, room, time:time || "", index };
 }
 
 function renderGroups() {
   const query = searchInput.value.trim().toLocaleLowerCase("ru");
-  const filtered = allGroups.filter(item =>
+  const filtered = allItems.filter(item =>
     item.name.toLocaleLowerCase("ru").includes(query)
   );
 
@@ -221,104 +430,175 @@ function renderGroups() {
     const button = document.createElement("button");
     button.className = "group";
 
-    const name = document.createElement("strong");
-    name.textContent = item.name;
+    const title = document.createElement("strong");
+    title.textContent = item.name;
 
     const hint = document.createElement("span");
-    hint.textContent = "Открыть расписание →";
+    hint.textContent = "Посмотреть расписание →";
 
-    button.append(name, hint);
+    button.append(title, hint);
     button.addEventListener("click", () => openSchedule(item));
     groupsBox.appendChild(button);
   });
 
-  groupsTitle.textContent = query
-    ? `Результаты поиска: ${filtered.length}`
-    : `Доступно: ${filtered.length}`;
+  document.getElementById("groupsTitle").textContent =
+    query ? `Найдено: ${filtered.length}` : `Список (${filtered.length})`;
 
-  if (filtered.length) {
-    statusBox.classList.add("hidden");
-  } else {
-    showStatus(
-      statusBox,
-      query ? "Ничего не найдено. Попробуй изменить запрос." : "Список не найден."
-    );
+  if (filtered.length) statusBox.classList.add("hidden");
+  else showStatus(statusBox, query ? "Ничего не найдено." : "Список пуст.");
+}
+
+async function loadGroups() {
+  const request = ++listRequest;
+  groupsBox.replaceChildren();
+  showStatus(statusBox, "Загружаем список…");
+
+  try {
+    const response = await fetch(`/api/groups/${encodeURIComponent(sourceSelect.value)}`);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Не удалось загрузить список");
+    if (request !== listRequest) return;
+
+    allItems = Array.isArray(data.groups) ? data.groups : [];
+    renderGroups();
+  } catch (error) {
+    if (request !== listRequest) return;
+    showStatus(statusBox, error.message || "Ошибка загрузки.", true);
   }
 }
 
-function makeReadableHtml(rawHtml, baseUrl) {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(rawHtml, "text/html");
+function renderDays() {
+  daysBox.replaceChildren();
 
-  // Относительные ссылки и изображения должны ссылаться на сайт РКТМ.
-  const base = doc.createElement("base");
-  base.href = baseUrl;
-  doc.head.prepend(base);
+  daysData.forEach((day, index) => {
+    const button = document.createElement("button");
+    button.className = "day-button" + (index === activeDay ? " active" : "");
 
-  // Убираем устаревшие параметры оформления, не меняя данные таблиц.
-  const style = doc.createElement("style");
-  style.textContent = `
-    html { color-scheme: light; }
-    body {
-      margin: 12px;
-      color: #172033;
-      background: #fff;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-    }
-    table {
-      border-collapse: collapse;
-      max-width: 100%;
-      width: 100%;
-      table-layout: auto;
-    }
-    td, th {
-      border: 1px solid #dfe4ee;
-      padding: 8px;
-      vertical-align: top;
-      overflow-wrap: anywhere;
-    }
-    tr:first-child td, tr:first-child th, th {
-      background: #edf1ff;
-    }
-    p { line-height: 1.4; margin: 4px 0; }
-    font { color: inherit !important; }
-    img { max-width: 100%; height: auto; }
-    a { color: #315efb; }
-    @media (max-width: 600px) {
-      body { margin: 5px; font-size: 12px; }
-      td, th { padding: 5px; }
-    }
-  `;
-  doc.head.appendChild(style);
+    const name = document.createElement("span");
+    name.className = "day-name";
+    name.textContent = day.label.split(",")[0];
 
-  // Устанавливаем корректную кодировку для содержимого iframe.
-  const charset = doc.querySelector("meta[charset]");
-  if (charset) charset.setAttribute("charset", "utf-8");
-  else {
-    const meta = doc.createElement("meta");
-    meta.setAttribute("charset", "utf-8");
-    doc.head.prepend(meta);
+    const date = document.createElement("span");
+    date.className = "day-date";
+    date.textContent = `${day.lessons.length} занятий`;
+
+    button.append(name, date);
+    button.addEventListener("click", () => {
+      activeDay = index;
+      renderDays();
+      renderSelectedDay();
+    });
+    daysBox.appendChild(button);
+  });
+}
+
+function renderSelectedDay() {
+  lessonsBox.replaceChildren();
+  dayHeading.replaceChildren();
+
+  if (!daysData.length) {
+    showStatus(
+      scheduleStatus,
+      "Не удалось распознать дни и пары в исходном файле. Проверьте структуру расписания.",
+      true
+    );
+    return;
   }
 
-  return "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
+  scheduleStatus.classList.add("hidden");
+
+  const day = daysData[activeDay];
+  const title = document.createElement("h3");
+  title.textContent = day.label;
+
+  const subtitle = document.createElement("div");
+  subtitle.className = "muted";
+  subtitle.textContent = "Расписание на выбранный день";
+
+  dayHeading.append(title, subtitle);
+  document.getElementById("lessonCount").textContent =
+    `${day.lessons.length} ${plural(day.lessons.length, "пара", "пары", "пар")}`;
+
+  day.lessons.forEach((lesson, index) => {
+    const card = document.createElement("article");
+    card.className = "lesson";
+
+    const time = document.createElement("div");
+    time.className = "lesson-time";
+
+    const number = document.createElement("span");
+    number.className = "lesson-number";
+    number.textContent = `${index + 1}-я пара`;
+
+    const timeText = document.createElement("span");
+    timeText.textContent = lesson.time || "Время не указано";
+    time.append(number, timeText);
+
+    const content = document.createElement("div");
+
+    const subject = document.createElement("div");
+    subject.className = "lesson-subject";
+    subject.textContent = lesson.subject || "Занятие";
+    content.appendChild(subject);
+
+    const details = document.createElement("div");
+    details.className = "lesson-details";
+
+    if (lesson.teacher) {
+      details.appendChild(detailLine("👤", lesson.teacher));
+    }
+    if (lesson.room) {
+      details.appendChild(detailLine("📍", lesson.room));
+    }
+    if (!lesson.teacher && !lesson.room) {
+      details.appendChild(detailLine("ℹ️", "Дополнительные сведения не указаны"));
+    }
+
+    content.appendChild(details);
+    card.append(time, content);
+    lessonsBox.appendChild(card);
+  });
+}
+
+function detailLine(icon, text) {
+  const line = document.createElement("div");
+  line.className = "detail";
+
+  const symbol = document.createElement("span");
+  symbol.className = "detail-icon";
+  symbol.textContent = icon;
+
+  const value = document.createElement("span");
+  value.textContent = text;
+
+  line.append(symbol, value);
+  return line;
+}
+
+function plural(n, one, few, many) {
+  const n10 = n % 10, n100 = n % 100;
+  if (n10 === 1 && n100 !== 11) return one;
+  if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return few;
+  return many;
 }
 
 async function openSchedule(item) {
   const request = ++scheduleRequest;
-  const source = sourceSelect.value;
-
   home.classList.add("hidden");
   scheduleView.classList.remove("hidden");
 
-  document.getElementById("groupTitle").textContent = item.name;
-  document.getElementById("groupSubtitle").textContent =
+  document.getElementById("itemTitle").textContent = item.name;
+  const source = sourceSelect.value;
+  const sourceName =
     source === "raspisan" ? "Расписание студентов" :
     source === "Praspisan" ? "Расписание преподавателей" :
     "Расписание аудиторий";
 
-  scheduleFrame.classList.add("hidden");
-  scheduleFrame.srcdoc = "";
+  document.getElementById("itemSubtitle").textContent = sourceName;
+  document.getElementById("sectionName").textContent = sourceName;
+  daysBox.replaceChildren();
+  lessonsBox.replaceChildren();
+  dayHeading.replaceChildren();
   showStatus(scheduleStatus, "Загружаем расписание…");
 
   try {
@@ -326,17 +606,14 @@ async function openSchedule(item) {
       `/api/group/${encodeURIComponent(source)}/${encodeURIComponent(item.file)}`
     );
     const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.detail || "Не удалось загрузить расписание");
-    }
+    if (!response.ok) throw new Error(data.detail || "Не удалось загрузить расписание");
     if (request !== scheduleRequest) return;
 
-    const html = makeReadableHtml(data.html || "", data.base_url);
-    scheduleFrame.srcdoc = html;
+    daysData = parseSchedule(data.html || "");
+    activeDay = 0;
 
-    scheduleStatus.classList.add("hidden");
-    scheduleFrame.classList.remove("hidden");
+    renderDays();
+    renderSelectedDay();
   } catch (error) {
     if (request !== scheduleRequest) return;
     showStatus(scheduleStatus, error.message || "Ошибка загрузки расписания.", true);
@@ -345,7 +622,6 @@ async function openSchedule(item) {
 
 document.getElementById("back").addEventListener("click", () => {
   ++scheduleRequest;
-  scheduleFrame.srcdoc = "";
   scheduleView.classList.add("hidden");
   home.classList.remove("hidden");
 });
