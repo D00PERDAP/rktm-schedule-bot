@@ -49,36 +49,36 @@ class GroupParser(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.groups = []
-        self.current_href = None
-        self.current_text = []
+        self.href = None
+        self.parts = []
 
     def handle_starttag(self, tag, attrs):
         if tag.lower() == "a":
-            self.current_href = dict(attrs).get("href")
-            self.current_text = []
+            self.href = dict(attrs).get("href")
+            self.parts = []
 
     def handle_data(self, data):
-        if self.current_href is not None:
-            self.current_text.append(data)
+        if self.href is not None:
+            self.parts.append(data)
 
     def handle_endtag(self, tag):
-        if tag.lower() != "a" or self.current_href is None:
+        if tag.lower() != "a" or self.href is None:
             return
 
-        name = " ".join("".join(self.current_text).split())
-        href = unquote(self.current_href.strip())
+        name = " ".join("".join(self.parts).split())
+        filename = unquote(self.href.strip())
 
         if (
             name
-            and re.fullmatch(r"[^/\\?#]+\.html?", href, re.I)
-            and not name.lower() in {"здесь", "скачать"}
+            and re.fullmatch(r"[^/\\?#]+\.html?", filename, re.I)
+            and name.lower() not in {"здесь", "скачать"}
         ):
-            item = {"name": name, "file": href}
+            item = {"name": name, "file": filename}
             if item not in self.groups:
                 self.groups.append(item)
 
-        self.current_href = None
-        self.current_text = []
+        self.href = None
+        self.parts = []
 
 
 @dp.message(CommandStart())
@@ -133,7 +133,6 @@ async def fetch_html(url: str) -> str:
             response.raise_for_status()
             content = response.content
 
-            # Сначала определяем кодировку из HTTP-заголовка.
             content_type = response.headers.get("content-type", "")
             match = re.search(
                 r"charset\s*=\s*[\"']?([^;\"'\s]+)",
@@ -142,18 +141,17 @@ async def fetch_html(url: str) -> str:
             )
             encoding = match.group(1).strip() if match else ""
 
-            # Затем учитываем META старых HTML-файлов.
             if not encoding:
-                head = content[:4096].decode("ascii", errors="ignore")
                 meta = re.search(
                     rb"charset\s*=\s*[\"']?([\w-]+)",
                     content[:4096],
                     re.I,
                 )
                 if meta:
-                    encoding = meta.group(1).decode("ascii", errors="ignore")
+                    encoding = meta.group(1).decode(
+                        "ascii", errors="ignore"
+                    )
 
-            # На сайте встречаются старые страницы в Windows-1251.
             candidates = []
             if encoding:
                 candidates.append(encoding)
@@ -187,6 +185,51 @@ def get_source(source: str) -> str:
     if source not in SCHEDULE_URLS:
         raise HTTPException(status_code=404, detail="Раздел не найден")
     return source
+
+
+def extract_schedule_info(html: str) -> dict:
+    """
+    Извлекает общую информацию из старого HTML Microsoft Word.
+    Полное отображение расписания выполняется в Mini App.
+    """
+    title_match = re.search(
+        r"Расписание\s+занятий\s+учебной\s+группы\s*:",
+        html,
+        re.I,
+    )
+
+    group = ""
+    week = ""
+
+    if title_match:
+        tail = re.sub(r"<[^>]+>", " ", html[title_match.end():])
+        tail = re.sub(r"\s+", " ", tail)
+
+        group_match = re.search(
+            r"([А-ЯЁA-Z]{1,5}[- ]?\d{1,3})",
+            tail,
+            re.I,
+        )
+        week_match = re.search(r"Неделя\s*:\s*(\d+)", tail, re.I)
+
+        if group_match:
+            group = group_match.group(1).strip()
+        if week_match:
+            week = week_match.group(1)
+
+    times = re.findall(
+        r"\b(\d{1,2}:\d{2})\s*[-–—]\s*(\d{1,2}:\d{2})\b",
+        html,
+    )
+
+    return {
+        "group": group,
+        "week": week,
+        "times": [
+            {"start": start, "end": end}
+            for start, end in times
+        ],
+    }
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -227,12 +270,14 @@ async def get_group_schedule(source: str, filename: str):
     get_source(source)
     filename = unquote(filename)
 
-    # Только имя файла, без перехода к произвольным адресам.
     if (
         not re.fullmatch(r"[^/\\?#]+\.html?", filename, re.I)
         or ".." in filename
     ):
-        raise HTTPException(status_code=400, detail="Некорректное имя файла")
+        raise HTTPException(
+            status_code=400,
+            detail="Некорректное имя файла",
+        )
 
     url = urljoin(SCHEDULE_BASE, filename)
     html = await fetch_html(url)
@@ -241,6 +286,7 @@ async def get_group_schedule(source: str, filename: str):
         "name": filename,
         "html": html,
         "base_url": SCHEDULE_BASE,
+        "info": extract_schedule_info(html),
     }
 
 
@@ -263,7 +309,10 @@ async def telegram_webhook(request: Request):
             "X-Telegram-Bot-Api-Secret-Token", ""
         )
         if received != WEBHOOK_SECRET:
-            raise HTTPException(status_code=403, detail="Invalid webhook secret")
+            raise HTTPException(
+                status_code=403,
+                detail="Invalid webhook secret",
+            )
 
     try:
         data = await request.json()
