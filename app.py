@@ -1,23 +1,34 @@
 
 import os
+import json
+import hmac
+import hashlib
+from urllib.parse import parse_qsl
+from datetime import datetime, timezone
 import re
 import logging
+import time
+import asyncio
 from pathlib import Path
 from contextlib import asynccontextmanager
 from html.parser import HTMLParser
 from urllib.parse import urljoin, unquote
 
 import httpx
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Header
+from pydantic import BaseModel, Field
+from features import initialize, save_user, user, news_list, add_news, add_feedback, compare_snapshot, subscribers, admin_authorized
 from fastapi.responses import FileResponse, HTMLResponse
 from aiogram import Bot, Dispatcher
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, Command
 from aiogram.types import (
     Message,
     Update,
     ReplyKeyboardMarkup,
     KeyboardButton,
     WebAppInfo,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -32,6 +43,9 @@ WEBAPP_URL = os.getenv(
     "https://rktm-schedule-bot.onrender.com",
 ).rstrip("/")
 WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "").strip()
+CACHE_TTL = int(os.getenv("CACHE_TTL_SECONDS", "300"))
+_html_cache: dict[str, tuple[float, str]] = {}
+_cache_lock = asyncio.Lock()
 
 SCHEDULE_BASE = "https://rktm.info/wp-content/uploads/HTML/"
 
@@ -86,7 +100,7 @@ async def start_command(message: Message):
     keyboard = ReplyKeyboardMarkup(
         keyboard=[[
             KeyboardButton(
-                text="📅 Открыть расписание",
+                text="🔴 Открыть РКТМ NEXT",
                 web_app=WebAppInfo(url=WEBAPP_URL),
             )
         ]],
@@ -94,15 +108,18 @@ async def start_command(message: Message):
         is_persistent=True,
     )
     await message.answer(
-        "Привет! Это расписание РКТМ.\n\n"
-        "Нажми кнопку ниже, чтобы открыть расписание.",
+        "🔴 РКТМ NEXT — твой цифровой кампус.\n\n"
+        "📅 Расписание и изменения\n⚡ Новости\n👤 Твоя группа и уведомления\n💬 Поддержка\n\n"
+        "Открой приложение — профиль синхронизируется с ботом.",
         reply_markup=keyboard,
     )
+    await message.answer("Открыть мини-приложение:", reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="🚀 Запустить РКТМ NEXT", web_app=WebAppInfo(url=WEBAPP_URL))]]))
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    if bot:
+    initialize()
+    if bot and WEBHOOK_SECRET:
         try:
             await bot.set_webhook(
                 url=f"{WEBAPP_URL}/telegram/webhook",
@@ -113,7 +130,14 @@ async def lifespan(app: FastAPI):
         except Exception:
             logger.exception("Не удалось настроить Telegram webhook")
 
+    monitor = asyncio.create_task(schedule_monitor()) if bot and WEBHOOK_SECRET else None
     yield
+    if monitor:
+        monitor.cancel()
+        try:
+            await monitor
+        except asyncio.CancelledError:
+            pass
 
     if bot:
         await bot.session.close()
@@ -123,6 +147,11 @@ app = FastAPI(title="РКТМ — расписание", lifespan=lifespan)
 
 
 async def fetch_html(url: str) -> str:
+    # Only fixed trusted college URLs reach this function.
+    async with _cache_lock:
+        cached = _html_cache.get(url)
+        if cached and time.monotonic() - cached[0] < CACHE_TTL:
+            return cached[1]
     try:
         async with httpx.AsyncClient(
             timeout=30,
@@ -161,19 +190,30 @@ async def fetch_html(url: str) -> str:
                 try:
                     decoded = content.decode(candidate)
                     if "\ufffd" not in decoded:
+                        async with _cache_lock:
+                            _html_cache[url] = (time.monotonic(), decoded)
                         return decoded
                 except (LookupError, UnicodeDecodeError):
                     continue
 
-            return content.decode("cp1251", errors="replace")
+            decoded = content.decode("cp1251", errors="replace")
+            async with _cache_lock:
+                _html_cache[url] = (time.monotonic(), decoded)
+            return decoded
 
     except httpx.HTTPStatusError as exc:
+        if url in _html_cache:
+            logger.warning("Serving cached schedule after upstream HTTP failure")
+            return _html_cache[url][1]
         logger.exception("Ошибка HTTP источника расписания")
         raise HTTPException(
             status_code=502,
             detail=f"Сайт РКТМ вернул HTTP {exc.response.status_code}",
         ) from exc
     except httpx.HTTPError as exc:
+        if url in _html_cache:
+            logger.warning("Serving cached schedule after network failure")
+            return _html_cache[url][1]
         logger.exception("Не удалось получить расписание")
         raise HTTPException(
             status_code=502,
@@ -246,6 +286,7 @@ async def index():
 async def health():
     return {
         "ok": True,
+        "version": "NEXT Red Edition",
         "bot_configured": bot is not None,
         "webapp_exists": INDEX_FILE.is_file(),
     }
@@ -304,6 +345,9 @@ async def telegram_webhook(request: Request):
             detail="BOT_TOKEN не настроен в Render",
         )
 
+    if not WEBHOOK_SECRET:
+        raise HTTPException(status_code=503, detail="WEBHOOK_SECRET is required")
+
     if WEBHOOK_SECRET:
         received = request.headers.get(
             "X-Telegram-Bot-Api-Secret-Token", ""
@@ -333,3 +377,165 @@ async def api_info():
         "service": "RKTM Schedule",
         "sources": list(SCHEDULE_URLS.keys()),
     }
+
+
+class Profile(BaseModel):
+    platform: str = Field(pattern=r"^(telegram|max)$")
+    user_id: str = Field(min_length=1, max_length=40)
+    source: str = Field(pattern=r"^(raspisan|Praspisan|Araspisan)$")
+    filename: str = Field(max_length=180)
+    group_name: str = Field(max_length=180)
+    notifications: bool = False
+
+class NewsPost(BaseModel):
+    title: str = Field(min_length=3, max_length=180)
+    body: str = Field(min_length=3, max_length=4000)
+
+class Feedback(BaseModel):
+    platform: str = Field(pattern=r"^(telegram|max)$")
+    user_id: str = Field(min_length=1, max_length=40)
+    message: str = Field(min_length=3, max_length=2000)
+
+@app.get('/api/news')
+async def get_news():
+    return {'items': news_list()}
+
+@app.post('/api/admin/news')
+async def create_news(post: NewsPost, x_admin_token: str = Header(default='')):
+    if not admin_authorized(x_admin_token):
+        raise HTTPException(403, 'Admin access required')
+    add_news(post.title, post.body)
+    return {'ok': True}
+
+def verified_telegram_user(init_data: str) -> str:
+    """Telegram Mini App HMAC validation; never trust client-supplied user IDs."""
+    if not bot or not BOT_TOKEN:
+        raise HTTPException(503, 'Telegram bot is not configured')
+    if not init_data or len(init_data) > 8192:
+        raise HTTPException(401, 'Open the application from Telegram')
+    try:
+        fields = dict(parse_qsl(init_data, keep_blank_values=True, strict_parsing=True))
+        provided = fields.pop('hash')
+        auth_date = int(fields['auth_date'])
+        if abs(int(datetime.now(timezone.utc).timestamp()) - auth_date) > 86400:
+            raise ValueError('Expired initData')
+        check = '\n'.join(f'{k}={v}' for k,v in sorted(fields.items()))
+        secret = hmac.new(b'WebAppData', BOT_TOKEN.encode(), hashlib.sha256).digest()
+        digest = hmac.new(secret, check.encode(), hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(provided, digest):
+            raise ValueError('Invalid signature')
+        user_data = json.loads(fields['user'])
+        return str(int(user_data['id']))
+    except (KeyError, ValueError, TypeError, json.JSONDecodeError):
+        raise HTTPException(401, 'Invalid Telegram authentication')
+
+
+class MiniProfile(BaseModel):
+    source: str = Field(pattern=r'^(raspisan|Praspisan|Araspisan)$')
+    filename: str = Field(min_length=1, max_length=180)
+    group_name: str = Field(min_length=1, max_length=180)
+    notifications: bool = False
+
+
+@app.get('/api/me')
+async def get_my_profile(x_telegram_init_data: str = Header(default='')):
+    uid = verified_telegram_user(x_telegram_init_data)
+    return {'profile': user('telegram', uid), 'user_id': uid}
+
+
+@app.post('/api/me')
+async def save_my_profile(profile: MiniProfile, x_telegram_init_data: str = Header(default='')):
+    uid = verified_telegram_user(x_telegram_init_data)
+    if not re.fullmatch(r'[^/\\?#]+\.html?', profile.filename, re.I) or '..' in profile.filename:
+        raise HTTPException(400, 'Invalid filename')
+    # A file must appear in the official source index, not just match a pattern.
+    html = await fetch_html(SCHEDULE_URLS[profile.source])
+    parser = GroupParser(); parser.feed(html)
+    found = next((g for g in parser.groups if g['file'] == profile.filename), None)
+    if not found:
+        raise HTTPException(400, 'Schedule not found in official index')
+    previous = user('telegram', uid)
+    save_user('telegram', uid, profile.source, profile.filename, found['name'], profile.notifications)
+    return {'ok': True, 'profile': user('telegram', uid)}
+
+
+@app.post('/api/me/feedback')
+async def send_my_feedback(feedback: NewsPost, x_telegram_init_data: str = Header(default='')):
+    uid = verified_telegram_user(x_telegram_init_data)
+    add_feedback('telegram', uid, feedback.title + '\n' + feedback.body)
+    return {'ok': True}
+
+
+@app.get('/api/admin/feedback')
+async def list_feedback(x_admin_token: str = Header(default='')):
+    if not admin_authorized(x_admin_token):
+        raise HTTPException(403, 'Admin access required')
+    from features import db
+    with db() as c:
+        return {'items': [dict(x) for x in c.execute('SELECT * FROM feedback ORDER BY id DESC LIMIT 100')]}
+
+@dp.message(Command('group'))
+async def group_command(message: Message):
+    parts=(message.text or '').split(maxsplit=2)
+    if len(parts)!=3 or not re.fullmatch(r'[^/\\?#]+\.html?',parts[2],re.I):
+        await message.answer('Формат: /group raspisan filename.html\nИмя файла можно узнать из списка расписания.')
+        return
+    if parts[1] not in SCHEDULE_URLS:
+        await message.answer('Неизвестный раздел расписания')
+        return
+    index_html = await fetch_html(SCHEDULE_URLS[parts[1]])
+    parser = GroupParser(); parser.feed(index_html)
+    selected = next((g for g in parser.groups if g['file'] == parts[2]), None)
+    if not selected:
+        await message.answer('Такого расписания нет в официальном списке. Выбери его через приложение.')
+        return
+    save_user('telegram',str(message.from_user.id),parts[1],parts[2],selected['name'],True)
+    await message.answer('Группа сохранена. Уведомления об изменениях включены. /mute — отключить.')
+
+@dp.message(Command('profile'))
+async def profile_command(message: Message):
+    current = user('telegram', str(message.from_user.id))
+    if not current or not current['filename']:
+        await message.answer('🔴 Группа пока не выбрана. Открой РКТМ NEXT и сохрани расписание.')
+        return
+    await message.answer('👤 Мой профиль\nГруппа: '+current['group_name']+'\nУведомления: '+('включены 🔔' if current['notifications'] else 'выключены 🔕')+'\n\nИзменить настройки можно в мини-приложении.')
+
+@dp.message(Command('mute'))
+async def mute_command(message: Message):
+    current=user('telegram',str(message.from_user.id))
+    if current:
+        save_user('telegram',str(message.from_user.id),current['source'],current['filename'],current['group_name'],False)
+    await message.answer('Уведомления выключены.')
+
+@dp.message(Command('news'))
+async def news_command(message: Message):
+    items=news_list()[:5]
+    await message.answer('\n\n'.join(x['title']+'\n'+x['body'][:600] for x in items) if items else 'Пока нет опубликованных новостей.')
+
+@dp.message(Command('help'))
+async def help_command(message: Message):
+    await message.answer('🔴 РКТМ NEXT\n/start — открыть приложение\n/profile — моя группа\n/group raspisan filename.html — выбрать группу\n/mute — отключить уведомления\n/news — новости\n/help — помощь')
+
+async def schedule_monitor():
+    # Checks only subscribed files. First observation sets baseline without notification.
+    await asyncio.sleep(10)
+    while True:
+        try:
+            from features import db
+            with db() as c:
+                items=[dict(x) for x in c.execute('SELECT DISTINCT source,filename FROM users WHERE notifications=1 AND filename != ""')]
+            for item in items:
+                try:
+                    html=await fetch_html(urljoin(SCHEDULE_BASE,item['filename']))
+                    if compare_snapshot(item['source'],item['filename'],html):
+                        for recipient in subscribers(item['source'],item['filename']):
+                            if recipient['platform']=='telegram' and bot:
+                                try:
+                                    await bot.send_message(int(recipient['user_id']), '📅 Расписание изменилось! Проверь актуальные пары в мини-приложении.')
+                                except Exception:
+                                    logger.exception('Failed to notify subscriber')
+                except Exception:
+                    logger.exception('Schedule monitor failed for %s',item['filename'])
+        except Exception:
+            logger.exception('Schedule monitor cycle failed')
+        await asyncio.sleep(max(300,int(os.getenv('MONITOR_INTERVAL_SECONDS','900'))))

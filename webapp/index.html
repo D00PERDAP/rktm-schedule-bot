@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#f4f6fb">
-<title>Расписание РКТМ</title>
+<meta name="theme-color" content="#0e0c11">
+<title>РКТМ NEXT — цифровой кампус</title>
 <style>
 :root {
   --bg:#f4f6fb;--card:#fff;--text:#172033;--muted:#788398;
@@ -62,7 +62,7 @@ select:focus,input:focus{border-color:var(--accent)}
 .status{padding:24px 12px;text-align:center;color:var(--muted);font-size:14px}
 .error{color:#bd3333}
 .hidden{display:none!important}
-.footer{padding-top:22px;text-align:center;color:var(--muted);font-size:12px}
+.quick-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 16px}.quick-nav button{background:white;border:1px solid var(--line);border-radius:13px;padding:13px 5px;font-weight:700;color:var(--text)}.quick-nav button:focus{outline:2px solid var(--accent)}.news-item{padding:12px 0;border-bottom:1px solid var(--line)}.news-item h3{margin:0 0 6px;font-size:15px}.news-item p{margin:0;white-space:pre-wrap}.footer{padding-top:22px;text-align:center;color:var(--muted);font-size:12px}
 @media(max-width:620px){
 .app{padding:13px 11px 28px}.hero{padding:21px}.hero h2{font-size:24px}
 .group-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -70,20 +70,69 @@ select:focus,input:focus{border-color:var(--accent)}
 .lesson-time{font-size:12px;padding:10px 4px}.lesson-subject{font-size:15px}
 .day-button{min-width:88px}
 }
+
+/* RKTM NEXT / RED EDITION — redesigned UI */
+:root{color-scheme:dark;--bg:#0e0c11;--card:#1b171e;--text:#f8f3f4;--muted:#a89ba6;--accent:#f43f4e;--line:#342831;--soft:#332029}
+body{background:radial-gradient(ellipse at 100% -5%,#4e1625 0,transparent 42%),#0e0c11;color:var(--text);min-height:100vh}
+.app{max-width:960px;padding:25px 20px 100px}
+.top{padding:7px 0 20px;border-bottom:1px solid var(--line);margin-bottom:24px}
+.logo{width:58px;height:58px;background:linear-gradient(135deg,#ff6c62,#d20e3a);border-radius:19px;box-shadow:0 12px 35px #ed29484d;font-size:13px;letter-spacing:-.3px}
+h1{font-size:25px;letter-spacing:-.9px}
+.hero{position:relative;overflow:hidden;padding:30px;border:1px solid #a82b47;border-radius:26px;background:linear-gradient(115deg,#c71b40,#7d142f 72%,#3b1328);box-shadow:0 18px 55px #9d15322e}
+.hero:after{content:'✦';position:absolute;right:15px;top:-38px;font-size:180px;line-height:1;color:#ffffff10;pointer-events:none}
+.hero small{letter-spacing:2px;font-size:10px}
+.hero h2{font-size:clamp(27px,5vw,40px);letter-spacing:-1.5px;margin:15px 0 10px}
+.hero p{max-width:420px}
+.panel,.summary,.lesson,.group,.day-button,.quick-nav button,.empty{background:linear-gradient(155deg,#211a23,#18151c);border:1px solid var(--line);color:var(--text);box-shadow:0 10px 30px #00000014}
+.panel{border-radius:22px;padding:22px}
+.group,.day-button,.lesson{border-radius:18px}
+.group:hover{border-color:#f43f4e;box-shadow:0 0 0 1px #f43f4e55;transform:translateY(-3px)}
+.group span,.detail{color:#b8a8b4}
+.btn{background:linear-gradient(135deg,#ff5158,#d81b43);border-radius:13px;box-shadow:0 7px 22px #dc244233}
+.btn.secondary{background:#39202b;color:#ff9eab;box-shadow:none}
+select,input{background:#141016;color:var(--text);border-color:#47313b}
+select:focus,input:focus{border-color:#ff5665;box-shadow:0 0 0 3px #f43f4e20}
+.day-button.active{background:#d82346;border-color:#ff6678}
+.day-button.active .day-date{color:#ffe1e7}
+.lesson-time,.count{background:#41202e;color:#ff8b9c}
+.quick-nav{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.quick-nav button{min-height:67px;font-size:13px;transition:.2s}
+.quick-nav button:hover{border-color:#e43855;background:#33202b}
+.section-title{font-size:20px;letter-spacing:-.4px}
+.label{color:#c0a9b4;letter-spacing:.5px}
+.footer{color:#84737f}
+.pulse-tag{display:inline-flex;gap:7px;align-items:center;padding:7px 11px;background:#3b1e2b;color:#ff9ca9;border:1px solid #6e2a40;border-radius:100px;font-size:11px;font-weight:800;margin-bottom:13px}
+.dashboard-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 18px}
+.metric{padding:16px;border:1px solid var(--line);background:#1d171f;border-radius:18px}
+.metric strong{display:block;font-size:19px;letter-spacing:-.4px;margin:7px 0}
+.metric span{font-size:11px;color:var(--muted)}
+.feedback-area{width:100%;min-height:110px;resize:vertical;padding:13px;border:1px solid var(--line);border-radius:13px;background:#141016;color:white;font:inherit;margin:12px 0}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#3e2330;color:white;border:1px solid #ad4059;border-radius:15px;padding:12px 18px;z-index:99;box-shadow:0 10px 30px #0008;max-width:90vw}
+@media(max-width:620px){.app{padding:13px 12px 90px}.quick-nav{grid-template-columns:repeat(2,1fr)}.dashboard-strip{grid-template-columns:repeat(3,1fr)}.metric{padding:12px}.metric strong{font-size:15px}.hero{padding:24px}.panel{padding:16px}}
 </style>
 </head>
 <body>
 <div class="app">
 <header class="top">
   <div class="logo">РКТМ</div>
-  <div><h1>Расписание занятий</h1><div class="muted">Ростовский колледж технологий машиностроения</div></div>
+  <div><h1>РКТМ <span style="color:#ff526b">NEXT</span></h1><div class="muted">Цифровой кампус · Telegram Edition</div></div>
 </header>
 
 <section id="home">
   <div class="hero">
-    <small>РАСПИСАНИЕ КОЛЛЕДЖА</small>
-    <h2>Всё по полочкам</h2>
-    <p>Выбери раздел и нужную группу, преподавателя или аудиторию.</p>
+    <small>● RKTM DIGITAL EXPERIENCE</small>
+    <h2>Колледж. На твоей волне.</h2>
+    <p>Всё важное в одном пространстве. Пары, изменения, события и связь с колледжем.</p>
+  </div>
+  <div class="dashboard-strip"><div class="metric"><span>МОЯ ГРУППА</span><strong id="dashGroup">Не выбрана</strong><span>Синхронизация с ботом</span></div><div class="metric"><span>УВЕДОМЛЕНИЯ</span><strong id="dashNotify">—</strong><span>Об изменениях</span></div><div class="metric"><span>ПЛАТФОРМА</span><strong>Telegram</strong><span>MAX — в планах</span></div></div>
+  <div class="quick-nav"><button type="button" data-tab="schedule">📅 Расписание</button><button type="button" data-tab="news">⚡ События</button><button type="button" data-tab="help">💬 Поддержка</button><button type="button" data-tab="profile">👤 Профиль</button></div>
+  <div id="accountPanel" class="panel"><h2>👤 Мой профиль</h2><p id="accountStatus" class="muted">Проверяем подключение к Telegram…</p><label><input type="checkbox" id="notifyToggle" style="display:inline;width:auto"> 🔔 Уведомлять об изменениях</label><p><button class="btn" type="button" id="saveProfile">Сохранить выбранное расписание в боте</button></p></div>
+  <div id="newsPanel" class="panel hidden"><h2>Новости колледжа</h2><div id="newsContent" class="muted">Загрузка…</div></div>
+  <div id="helpPanel" class="panel hidden"><div class="pulse-tag">● СВЯЗЬ С КОЛЛЕДЖЕМ</div><h2>Напиши нам</h2><p class="muted">Предложения, проблемы с расписанием или вопросы по работе сервиса. Сообщение попадёт в систему обращений.</p><textarea id="feedbackMessage" class="feedback-area" maxlength="2000" placeholder="Опиши вопрос или предложение..."></textarea><button type="button" class="btn" id="sendFeedback">Отправить обращение →</button><p id="feedbackStatus" class="muted" aria-live="polite"></p><p class="muted">Расписание предоставляется сайтом rktm.info. Ответы ИИ появятся после подключения проверенной базы знаний.</p></div>
+  <div class="panel" id="favoritePanel" style="display:none;margin-bottom:12px">
+    <div class="label">⭐ МОЁ РАСПИСАНИЕ</div>
+    <button class="btn" id="favoriteOpen" type="button">Открыть избранное</button>
+    <button class="btn secondary" id="favoriteClear" type="button">Убрать из избранного</button>
   </div>
   <div class="panel">
     <label class="label" for="source">Раздел расписания</label>
@@ -111,6 +160,8 @@ select:focus,input:focus{border-color:var(--accent)}
     <div><div class="muted">ВЫБРАННЫЙ РАЗДЕЛ</div><strong id="sectionName">Расписание</strong></div>
     <div id="lessonCount" class="count">0 пар</div>
   </div>
+  <button class="btn secondary" id="favoriteSave" type="button" style="margin:10px 0">☆ Сохранить как моё расписание</button>
+  <div class="panel" id="subscriptionHint"><div class="label">🔔 УВЕДОМЛЕНИЯ</div><div class="muted">Чтобы получать изменения в Telegram, скопируй команду и отправь её боту.</div><button type="button" class="btn" id="subscribeDirect">🔔 Подписаться через приложение</button> <button type="button" class="btn secondary" id="copySubscribe" style="margin-top:10px">Скопировать команду подписки</button></div>
   <div id="days" class="day-list"></div>
   <div id="dayHeading" class="day-heading"></div>
   <div id="lessons" class="lesson-list"></div>
@@ -119,9 +170,34 @@ select:focus,input:focus{border-color:var(--accent)}
 <div class="footer">Источник данных: rktm.info</div>
 </div>
 
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
 "use strict";
 
+const tg = window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();}
+const initData = tg?.initData || '';
+async function apiAccount(path, method='GET', body){
+  if(!initData)throw new Error('Открой приложение кнопкой внутри Telegram, чтобы синхронизировать профиль.');
+  const r=await fetch(path,{method,headers:{'X-Telegram-Init-Data':initData,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});
+  const data=await r.json();if(!r.ok)throw new Error(typeof data.detail==='string'?data.detail:'Ошибка сервера');return data;
+}
+async function loadAccount(){
+  try{const result=await apiAccount('/api/me');const p=result.profile;
+    $('accountStatus').textContent=p?.filename?`Синхронизировано с ботом: ${p.group_name}`:'Telegram подключён. Выбери расписание и сохрани его.';
+    $('notifyToggle').checked=!!p?.notifications;
+    $('dashGroup').textContent=p?.group_name||'Не выбрана';$('dashNotify').textContent=p?.notifications?'Включены':'Выключены';
+    if(p?.filename){localStorage.setItem('rktm.favorite.v1',JSON.stringify({source:p.source,file:p.filename,name:p.group_name}));updateFavoriteUI();}
+  }catch(e){$('accountStatus').textContent=e.message;}
+}
+async function saveAccount(notifications){
+  const favorite=currentItem?{...currentItem,source:sourceSelect.value}:readFavorite();
+  if(!favorite){$('accountStatus').textContent='Сначала выбери группу или расписание.';return;}
+  try{const result=await apiAccount('/api/me','POST',{source:favorite.source,filename:favorite.file,group_name:favorite.name,notifications});
+    localStorage.setItem('rktm.favorite.v1',JSON.stringify(favorite));updateFavoriteUI();$('notifyToggle').checked=notifications;
+    $('accountStatus').textContent='✓ Сохранено в Telegram-боте. '+(notifications?'Уведомления включены.':'Уведомления выключены.');$('dashGroup').textContent=favorite.name;$('dashNotify').textContent=notifications?'Включены':'Выключены';
+  }catch(e){$('accountStatus').textContent=e.message;}
+}
 const $ = id => document.getElementById(id);
 const sourceSelect = $("source");
 const searchInput = $("search");
@@ -135,6 +211,23 @@ const dayHeading = $("dayHeading");
 const scheduleStatus = $("scheduleStatus");
 
 let allItems = [];
+let currentItem = null;
+const FAVORITE_KEY = "rktm.favorite.v1";
+function readFavorite(){
+  try {
+    const value=JSON.parse(localStorage.getItem(FAVORITE_KEY)||"null");
+    return value && ["raspisan","Praspisan","Araspisan"].includes(value.source) &&
+      typeof value.file==="string" && typeof value.name==="string" ? value : null;
+  } catch { return null; }
+}
+function updateFavoriteUI(){
+  const favorite=readFavorite();
+  $("favoritePanel").style.display=favorite?"block":"none";
+  if(favorite) $("favoriteOpen").textContent="⭐ "+favorite.name+" — открыть";
+  $("favoriteSave").textContent=currentItem && favorite && favorite.file===currentItem.file && favorite.source===sourceSelect.value
+    ? "★ В избранном" : "☆ Сохранить как моё расписание";
+}
+
 let daysData = [];
 let activeDay = 0;
 let listRequest = 0;
@@ -554,6 +647,8 @@ function renderSelectedDay(){
 }
 
 async function openSchedule(item){
+  currentItem=item;
+  updateFavoriteUI();
   const request=++scheduleRequest;
   home.classList.add("hidden");
   scheduleView.classList.remove("hidden");
@@ -576,7 +671,9 @@ async function openSchedule(item){
     if(request!==scheduleRequest)return;
 
     daysData=parseSchedule(data.html||"");
-    activeDay=0;
+    const today=(new Date().getDay()+6)%7;
+    const todayIndex=daysData.findIndex(day=>String(day.name||day.title||"").toLocaleLowerCase("ru").includes(["понедельник","вторник","среда","четверг","пятница","суббота","воскресенье"][today]));
+    activeDay=todayIndex>=0?todayIndex:0;
     renderDays();
     renderSelectedDay();
   }catch(error){
@@ -585,6 +682,22 @@ async function openSchedule(item){
   }
 }
 
+$("favoriteSave").addEventListener("click",()=>{
+  if(!currentItem)return;
+  localStorage.setItem(FAVORITE_KEY,JSON.stringify({...currentItem,source:sourceSelect.value}));
+  updateFavoriteUI();
+  saveAccount($("notifyToggle").checked);
+});
+$("favoriteClear").addEventListener("click",()=>{
+  localStorage.removeItem(FAVORITE_KEY);
+  updateFavoriteUI();
+});
+$("favoriteOpen").addEventListener("click",()=>{
+  const favorite=readFavorite();
+  if(!favorite)return;
+  sourceSelect.value=favorite.source;
+  openSchedule(favorite);
+});
 $("back").addEventListener("click",()=>{
   ++scheduleRequest;
   scheduleView.classList.add("hidden");
@@ -595,7 +708,41 @@ sourceSelect.addEventListener("change",()=>{
   loadGroups();
 });
 searchInput.addEventListener("input",renderGroups);
+updateFavoriteUI();
 loadGroups();
+loadAccount();
+$("saveProfile").addEventListener("click",()=>saveAccount($("notifyToggle").checked));
+$("subscribeDirect").addEventListener("click",()=>saveAccount(true));
+
+async function loadNews(){
+  const container=$('newsContent');container.textContent='Загрузка…';
+  try{
+    const response=await fetch('/api/news');if(!response.ok)throw new Error('Ошибка загрузки');
+    const data=await response.json();container.replaceChildren();
+    if(!data.items.length){container.textContent='Новостей пока нет.';return;}
+    for(const item of data.items){const card=document.createElement('article');card.className='news-item';const title=document.createElement('h3');title.textContent=item.title;const body=document.createElement('p');body.textContent=item.body;card.append(title,body);container.append(card);}
+  }catch(e){container.textContent='Не удалось загрузить новости.';}
+}
+document.querySelectorAll('[data-tab]').forEach(button=>button.addEventListener('click',()=>{
+  const tab=button.dataset.tab;
+  $('newsPanel').classList.toggle('hidden',tab!=='news');
+  $('helpPanel').classList.toggle('hidden',tab!=='help');
+  if(tab==='news')loadNews();
+  if(tab==='profile'){$('newsPanel').classList.add('hidden');$('helpPanel').classList.add('hidden');$('accountPanel').scrollIntoView({behavior:'smooth',block:'center'});}
+  if(tab==='schedule'){$('newsPanel').classList.add('hidden');$('helpPanel').classList.add('hidden');}
+}));
+$('sendFeedback').addEventListener('click',async()=>{
+  const message=$('feedbackMessage').value.trim();
+  if(message.length<3){$('feedbackStatus').textContent='Напиши хотя бы 3 символа.';return;}
+  try{await apiAccount('/api/me/feedback','POST',{title:'Обращение из РКТМ NEXT',body:message});$('feedbackStatus').textContent='✓ Обращение отправлено';$('feedbackMessage').value='';}
+  catch(e){$('feedbackStatus').textContent=e.message;}
+});
+$('copySubscribe').addEventListener('click',async()=>{
+  if(!currentItem)return;
+  const command='/group '+sourceSelect.value+' '+currentItem.file;
+  try{await navigator.clipboard.writeText(command);$('copySubscribe').textContent='✓ Команда скопирована';}
+  catch{$('copySubscribe').textContent=command;}
+});
 </script>
 </body>
 </html>
