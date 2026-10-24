@@ -1,1 +1,48 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#101827">
+<title>Расписание РКТМ</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#0b1220;--panel:#131e30;--panel2:#19263a;--text:#f4f7fb;--muted:#9aabc1;--accent:#60a5fa;--line:#26364d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:760px;margin:auto;padding:20px 16px 36px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+.brand{font-size:12px;letter-spacing:.12em;color:var(--accent);font-weight:800}.title{font-size:28px;font-weight:800;letter-spacing:-.04em;margin:4px 0}.sub{color:var(--muted);font-size:13px}
+.pill{border:1px solid var(--line);border-radius:999px;padding:8px 11px;color:var(--muted);font-size:12px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:20px 0}.tab{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:11px 5px;color:var(--muted);font-weight:700;font-size:12px}.tab.active{background:var(--accent);color:#07111f;border-color:var(--accent)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:13px}.panelhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.panel h2{font-size:17px;margin:0}.btn{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-weight:700}.btn.primary{background:var(--accent);color:#07111f;border-color:var(--accent)}
+.search{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:13px;padding:13px 14px;font:inherit;outline:none}.content{white-space:pre-wrap;overflow-wrap:anywhere;color:#dce6f3;font-size:14px;line-height:1.65}.muted{color:var(--muted)}.status{padding:18px;text-align:center;color:var(--muted)}.tablewrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}td,th{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-align:top;min-width:80px}th{color:var(--accent)}a{color:var(--accent)}.notice{font-size:12px;color:var(--muted);margin-top:12px}
+@media(min-width:600px){main{padding-top:30px}.title{font-size:34px}.tabs{gap:10px}.tab{font-size:14px}}
+</style>
+</head>
+<body><main>
+<header class="top"><div><div class="brand">РКТМ · STUDENT</div><div class="title">Расписание</div><div class="sub" id="today"></div></div><div class="pill">Официальный источник</div></header>
+<nav class="tabs">
+<button class="tab active" data-view="main">Основное</button><button class="tab" data-view="p">П-расписание</button><button class="tab" data-view="a">А-расписание</button><button class="tab" data-view="repl">Замены</button>
+</nav>
+<section class="panel" id="schedulePanel"><div class="panelhead"><h2 id="sectionTitle">Основное расписание</h2><button class="btn" id="refresh">↻ Обновить</button></div><input class="search" id="search" placeholder="Найти группу, предмет или кабинет…"><p class="notice">Поиск фильтрует отображаемый текст. Данные загружаются с сайта РКТМ.</p></section>
+<section class="panel"><div id="result" class="status">Загружаем расписание…</div></section>
+<section class="panel" id="replPanel" hidden><div class="panelhead"><h2>Замены на день</h2><span class="pill">PDF</span></div><p class="muted">Откройте опубликованный колледжем документ с заменами.</p><button class="btn primary" id="openPdf">Открыть PDF замен ↗</button><p class="notice" id="replStatus"></p></section>
+<div class="notice">Источник данных: rktm.info. Если сайт обновит формат таблиц, отображение может потребовать корректировки.</div>
+</main>
+<script>
+const tg=window.Telegram?.WebApp;tg?.ready();tg?.expand();
+const labels={main:"Основное расписание",p:"П-расписание",a:"А-расписание"};
+let current="main",rawText="";
+document.getElementById("today").textContent=new Intl.DateTimeFormat("ru-RU",{weekday:"long",day:"numeric",month:"long"}).format(new Date());
+const result=document.getElementById("result"),schedulePanel=document.getElementById("schedulePanel"),replPanel=document.getElementById("replPanel");
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function renderText(){const q=document.getElementById("search").value.trim().toLocaleLowerCase("ru");let lines=rawText.split(/\n+/).filter(Boolean);if(q)lines=lines.filter(x=>x.toLocaleLowerCase("ru").includes(q));result.className="content";result.textContent=lines.join("\n")||"Ничего не найдено. Проверьте запрос.";}
+async function loadSchedule(){current=current==="repl"?"main":current;document.getElementById("sectionTitle").textContent=labels[current];result.className="status";result.textContent="Загружаем данные…";document.getElementById("search").value="";try{const r=await fetch(`/api/schedule/${current}`);if(!r.ok)throw Error("Источник временно недоступен");const d=await r.json();rawText=d.text||"";renderText();}catch(e){result.className="status";result.textContent="Не удалось загрузить расписание. Попробуйте обновить страницу или откройте официальный сайт.";}}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));current=b.dataset.view;const isRepl=current==="repl";schedulePanel.hidden=isRepl;replPanel.hidden=!isRepl;if(!isRepl)loadSchedule();else loadReplacements();}));
+document.getElementById("refresh").addEventListener("click",loadSchedule);
+document.getElementById("search").addEventListener("input",renderText);
+let pdfUrl="";
+async function loadReplacements(){const s=document.getElementById("replStatus");s.textContent="Проверяем ссылку…";try{const r=await fetch("/api/replacements");const d=await r.json();pdfUrl=d.url||"";s.textContent=d.available?"Ссылка на документ настроена.":"Ссылка на актуальный PDF не настроена на сервере.";document.getElementById("openPdf").disabled=!pdfUrl;}catch(e){s.textContent="Не удалось проверить документ.";}}
+document.getElementById("openPdf").addEventListener("click",()=>{if(pdfUrl)window.open(pdfUrl,"_blank","noopener");});
+loadSchedule();
+</script></body></html>
 
